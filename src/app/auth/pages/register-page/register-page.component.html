@@ -1,0 +1,172 @@
+<main
+  class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 flex items-center justify-center p-4 relative overflow-hidden">
+  <!-- Background Image with Dark Overlay -->
+  <div class="absolute inset-0 bg-cover bg-center"
+    style="background-image: url('https://img.freepik.com/fotos-premium/3d-rendering-gran-hotel-lujo-sala-recepcion-centro-condominios-ventas_105762-1251.jpg');">
+  </div>
+
+  <!-- Dark overlay for better contrast -->
+  <div class="absolute inset-0 bg-black/70"></div>
+
+  <!-- Registration Form Container -->
+  <article class="relative w-full max-w-md z-10">
+    <div class="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20">
+      <!-- Header -->
+      <header class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-white mb-2">Registrarse</h1>
+        <p class="text-gray-300">Encuentra tu lugar perfecto hoy</p>
+      </header>
+
+      <!-- Error Message -->
+      @if (hasError()) {
+        <div class="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-sm">
+          ⚠️ Por favor verifica los datos ingresados
+        </div>
+      }
+
+      <!-- Registration Form -->
+      <form [formGroup]="registerForm" class="space-y-6" (ngSubmit)="onSubmit()">
+        <!-- Name Field -->
+        <div class="space-y-2">
+          <label for="username" class="block text-sm font-medium text-white">Nombres y apellidos:</label>
+          <input
+            id="username"
+            name="username"
+            type="text"
+            placeholder="John Doe"
+            formControlName="username"
+            class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm"
+            [class.border-red-500]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched" />
+
+          @if (registerForm.get('username')?.invalid && registerForm.get('username')?.touched) {
+            <p class="text-xs text-red-400 mt-1">El nombre debe tener al menos 3 caracteres</p>
+          }
+        </div>
+
+        <!-- Email Field -->
+        <div class="space-y-2">
+          <label for="email" class="block text-sm font-medium text-white">Correo electrónico:</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="you@example.com"
+            formControlName="email"
+            class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm"
+            [class.border-red-500]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" />
+
+          @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+            <p class="text-xs text-red-400 mt-1">Ingresa un correo válido</p>
+          }
+        </div>
+
+        <!-- Phone Field -->
+        <div class="space-y-2">
+          <label for="telefono" class="block text-sm font-medium text-white">Número de celular:</label>
+          <input
+            id="telefono"
+            name="telefono"
+            type="tel"
+            placeholder="987654321"
+            formControlName="telefono"
+            class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm"
+            [class.border-red-500]="registerForm.get('telefono')?.invalid && registerForm.get('telefono')?.touched" />
+
+          @if (registerForm.get('telefono')?.invalid && registerForm.get('telefono')?.touched) {
+            <p class="text-xs text-red-400 mt-1">Ingresa un número válido (9-15 dígitos)</p>
+          }
+        </div>
+
+        <!-- Password Field -->
+        <div class="space-y-2">
+          <label for="password" class="block text-sm font-medium text-white">Contraseña:</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="••••••••"
+            formControlName="password"
+            class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm"
+            [class.border-red-500]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" />
+
+          <p class="text-xs text-gray-400 mt-1">Mínimo 8 caracteres</p>
+        </div>
+
+        <!-- Repeat Password Field -->
+        <div class="space-y-2">
+          <label for="repeatPassword" class="block text-sm font-medium text-white">Repetir contraseña:</label>
+          <input
+            id="repeatPassword"
+            name="repeatPassword"
+            type="password"
+            placeholder="••••••••"
+            formControlName="repeatPassword"
+            class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm"
+            [class.border-red-500]="registerForm.get('repeatPassword')?.invalid && registerForm.get('repeatPassword')?.touched" />
+
+          @if (registerForm.value.password !== registerForm.value.repeatPassword && registerForm.get('repeatPassword')?.touched) {
+            <p class="text-xs text-red-400 mt-1">Las contraseñas no coinciden</p>
+          }
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          [disabled]="isPosting()"
+          class="w-full bg-linear-to-r from-purple-600 to-violet-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-purple-700 hover:to-violet-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-300 shadow-lg hover:shadow-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed">
+          @if (isPosting()) {
+            <span>Creando cuenta...</span>
+          } @else {
+            <span>Crear cuenta</span>
+          }
+        </button>
+
+        <!-- Divider -->
+        <div class="relative my-6">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-white/20"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-4 py-2 bg-white/10 backdrop-blur-sm text-gray-300 rounded-full">o regístrate con</span>
+          </div>
+        </div>
+
+        <!-- Social Sign Up -->
+        <div class="grid grid-cols-2 gap-4">
+          <button
+            type="button"
+            class="flex items-center justify-center px-4 py-3 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all duration-300 backdrop-blur-sm text-white">
+            <!-- Google Icon -->
+            <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+            </svg>
+            <span class="text-sm font-medium">Google</span>
+          </button>
+          <button
+            type="button"
+            class="flex items-center justify-center px-4 py-3 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all duration-300 backdrop-blur-sm text-white">
+            <!-- GitHub Icon -->
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.137 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+            </svg>
+            <span class="text-sm font-medium">GitHub</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Sign In Link -->
+      <footer class="mt-6 text-center">
+        <p class="text-sm text-gray-300">
+          ¿Ya tienes una cuenta?
+          <a [routerLink]="['/auth/login']"
+            class="text-purple-400 font-medium hover:text-purple-300 transition-colors duration-300 underline">
+            Ingresa aquí
+          </a>
+        </p>
+      </footer>
+    </div>
+  </article>
+</main>

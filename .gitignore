@@ -41,3 +41,9 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Archivos que no se deben subir
+
+.node_modules
+
+.angular
