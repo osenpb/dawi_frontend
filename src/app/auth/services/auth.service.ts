@@ -1,14 +1,15 @@
 import { LoginRequest, RegisterRequest } from './../interfaces/auth.interface';
 import { HttpClient } from "@angular/common/http";
 import { computed, inject, Injectable, signal } from "@angular/core";
-import { AuthResponse, UserResponseDTO } from "../interfaces/auth.interface";
-import { catchError, map, Observable, of, tap } from 'rxjs';
+import { AuthResponse } from "../interfaces/auth.interface";
+import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { UserResponseDTO } from '../interfaces/userResponseDTO.interface';
 
 type AuthStatus = 'checking' | 'authenticated' | 'not-authenticated'
 const baseUrl = 'http://localhost:8080/api/v1'
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
 
   private _authStatus = signal('checking');
@@ -22,9 +23,9 @@ export class AuthService {
   private http = inject(HttpClient)
 
   authStatus = computed(() => {
-    if( this._authStatus() === 'checking') return 'checking';
+    if (this._authStatus() === 'checking') return 'checking';
 
-    if(this._user()) {
+    if (this._user()) {
       return 'authenticated';
     }
     return 'not-authenticated'
@@ -34,35 +35,27 @@ export class AuthService {
   user = computed<UserResponseDTO | null>(() => this._user())
   token = computed(() => this._token())
 
-  register(registerRequest: RegisterRequest) : Observable<boolean> {
-    return this.http.post(`${baseUrl}/auth/register`, {
+  register(registerRequest: RegisterRequest): Observable<boolean> {
+    return this.http.post<AuthResponse>(`${baseUrl}/auth/register`, {
       username: registerRequest.username,
       email: registerRequest.email,
       telefono: registerRequest.telefono,
       password: registerRequest.password,
-    }, {
-      responseType: 'text' as 'json'
     }).pipe(
-      tap(resp => {
-        this.handleLoginSuccess(resp)
+      tap((resp: AuthResponse) => {
+        this.handleLoginSuccess(resp);
       }),
       map(() => true),
       catchError((error: any) => this.handleAuthError(error))
-    )
+    );
   }
 
-  login(loginRequest: LoginRequest) : Observable<boolean> {
-    return this.http.post<AuthResponse>(`${baseUrl}/auth/login`, {
-      email: loginRequest.email,
-      password: loginRequest.password
-    }).pipe(
-      tap(resp => {
-        this.handleLoginSuccess(resp)
-      }),
-      map(() => true),
-      catchError((error: any) => this.handleAuthError(error))
-    )
-  }
+login(loginRequest: LoginRequest): Observable<AuthResponse> {
+  return this.http.post<AuthResponse>(`${baseUrl}/auth/login`, loginRequest).pipe(
+    tap(resp => this.handleLoginSuccess(resp)),
+    catchError(error => this.handleAuthError(error)) // ahora siempre devuelve AuthResponse o lanza error
+  );
+}
 
   logout() {
     this._user.set(null);
@@ -73,36 +66,36 @@ export class AuthService {
 
   }
 
-  private checkAuthStatus() : Observable<boolean> {
-  const token = localStorage.getItem('token');
+  private checkAuthStatus(): Observable<boolean> {
+    const token = localStorage.getItem('token');
 
-  if (!token) {
-    this._authStatus.set('not-authenticated');
-    return of(false);
+    if (!token) {
+      this._authStatus.set('not-authenticated');
+      return of(false);
+    }
+
+    // Aquí podrías validar el token con el backend
+    // Por ahora, hago esto para verificar el token
+    this._token.set(token);
+    this._authStatus.set('authenticated');
+    return of(true);
+    // Idealmente, debería llamar a un endpoint para obtener el usuario
+    // this.http.get<UserResponseDTO>(`${baseUrl}/auth/me`).subscribe(...)
+    //IMPLEMENTACION FUTURA O.o
+
   }
 
-  // Aquí podrías validar el token con el backend
-  // Por ahora, hago esto para verificar el token
-  this._token.set(token);
+private handleLoginSuccess(resp: AuthResponse) {
   this._authStatus.set('authenticated');
-  return of(true);
-  // Idealmente, debería llamar a un endpoint para obtener el usuario
-  // this.http.get<UserResponseDTO>(`${baseUrl}/auth/me`).subscribe(...)
-  //IMPLEMENTACION FUTURA O.o
-
+  this._user.set(resp.userResponseDTO);
+  this._token.set(resp.token);
+  localStorage.setItem('token', resp.token);
 }
 
-  private handleLoginSuccess(resp: any) {
-        this._authStatus.set('authenticated');
-        this._user.set(resp.user);
-        this._token.set(resp.token);
-        localStorage.setItem('token', resp.token);
-      }
-
-  private handleAuthError(error : any) {
+  private handleAuthError(error: any) {
     this.logout();
     console.log(error)
-    return of(false)
+    return throwError(() => error)
 
   }
 }

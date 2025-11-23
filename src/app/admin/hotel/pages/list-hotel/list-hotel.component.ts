@@ -2,11 +2,12 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { Hotel } from '../../../interfaces/hotel.interface';
 import { HotelService } from '../../services/hotel.service';
+import { RouterLink } from "@angular/router";
 
 @Component({
   standalone: true,
   selector: 'app-list-hotel',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './list-hotel.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -27,4 +28,13 @@ export class ListHotelComponent {
     });
   }
 
+  eliminarHotelPorId(id: number) {
+    this.hotelService.deleteById(id).subscribe({
+      next: () => {
+        alert('Seguro que quieres eliminar el hotel?')
+        this.loadAllHoteles()
+      },
+      error: err => console.log(err)
+    })
+  }
 }

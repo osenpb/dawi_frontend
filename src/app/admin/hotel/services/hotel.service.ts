@@ -27,16 +27,23 @@ export class HotelService {
     );
   }
 
-  createHotel(hotelRequest: HotelRequest) {
-    return this.http.post<HotelRequest>(`${baseUrl}/hoteles`, {
-      hotelRequest
-    }).pipe(
-      catchError((error: any) => {
-        console.error("Error: ", error);
-        return throwError(() => error);
-      })
-    )
-  }
+createHotel(hotelRequest: HotelRequest) {
+  return this.http.post<HotelRequest>(`${baseUrl}/hoteles`, hotelRequest).pipe(
+    catchError((error: any) => {
+      console.error("Error: ", error);
+      return throwError(() => error);
+    })
+  );
+}
+
+deleteById(idHotel: number) {
+  return this.http.delete<number>(`${baseUrl}/hoteles/${idHotel}`).pipe(
+    catchError((error: any) => {
+      console.error("Error: ", error);
+      return throwError(() => error)
+    })
+  )
+}
 
 
 }

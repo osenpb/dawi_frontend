@@ -1,3 +1,4 @@
+import { UserResponseDTO } from "./userResponseDTO.interface";
 
 export type RegisterRequest = {
   username: string | null;
@@ -12,21 +13,12 @@ export type LoginRequest = {
   password: string | null;
 }
 
+
 export type AuthResponse = {
-  user: UserResponseDTO,
+  userResponseDTO: UserResponseDTO, 
   token: string
 }
 
 
-export type UserResponseDTO = {
-  id: number,
-  username: string,
-  email: string,
-  role: Role
 
-}
 
-export type Role = {
-  roleId: number,
-  name: string
-}

@@ -1,3 +1,5 @@
+import { Router } from '@angular/router';
+import { routes } from './../../../../app.routes';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Departamento } from '../../../interfaces/departamento.interface';
@@ -17,6 +19,8 @@ export class CreateHotelComponent {
   private hotelService = inject(HotelService);
   private departamentoService = inject(DepartamentoService);
 
+   router = inject(Router);
+
   departamentos = signal<Departamento[]>([]);
 
   hotelForm = this.fb.group({
@@ -27,6 +31,7 @@ export class CreateHotelComponent {
 
   constructor() {
     this.loadDepartamentos();
+
   }
 
   loadDepartamentos() {
@@ -49,8 +54,10 @@ export class CreateHotelComponent {
 
     this.hotelService.createHotel(hotelData).subscribe({
       next: () => {
-        alert("Hotel creado con éxito");
+        alert("Hotel creado :DDD");
         this.hotelForm.reset();
+        this.router.navigate(['/admin/hotel/list'])
+
       },
       error: (err) => console.log(err)
     });
