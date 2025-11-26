@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Hotel } from '../../../interfaces/hotel.interface';
-import { HotelService } from '../../services/hotel.service';
+import { HotelService } from '../../../services/hotel.service';
 import { RouterLink } from "@angular/router";
 
 @Component({
@@ -11,7 +11,7 @@ import { RouterLink } from "@angular/router";
   templateUrl: './list-hotel.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ListHotelComponent {
+export class ListHotelPageComponent {
 
   private hotelService = inject(HotelService);
 

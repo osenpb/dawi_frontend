@@ -3,8 +3,8 @@ import { routes } from './../../../../app.routes';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Departamento } from '../../../interfaces/departamento.interface';
-import { DepartamentoService } from '../../../departamento/departamento.service';
-import { HotelService } from '../../services/hotel.service';
+import { DepartamentoService } from '../../../services/departamento.service';
+import { HotelService } from '../../../services/hotel.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './create-hotel.component.html',
 
 })
-export class CreateHotelComponent {
+export class CreateHotelPageComponent {
 
   private fb = inject(FormBuilder);
   private hotelService = inject(HotelService);
