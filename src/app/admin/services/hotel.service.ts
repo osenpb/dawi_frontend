@@ -1,10 +1,8 @@
-import { HotelRequest } from '../interfaces/hotelRequest.interface';
-
-import { inject, Injectable, signal } from '@angular/core';
-import { Hotel } from '../interfaces/hotel.interface';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { catchError, Observable, tap, throwError } from 'rxjs';
-import { Departamento } from '../interfaces/departamento.interface';
+import { catchError, Observable, throwError } from 'rxjs';
+import { HotelResponse } from '../../interfaces/hotel/hotel-response.interface';
+import { HotelRequest } from '../../interfaces/hotel/hotel-request.interface';
 
 const baseUrl = 'http://localhost:8080/api/admin';
 
@@ -14,46 +12,46 @@ const baseUrl = 'http://localhost:8080/api/admin';
 export class HotelService {
   private http = inject(HttpClient);
 
-  getAllHoteles(): Observable<Hotel[]> {
-    return this.http.get<Hotel[]>(`${baseUrl}/hoteles`).pipe(
+  getAllHoteles(): Observable<HotelResponse[]> {
+    return this.http.get<HotelResponse[]>(`${baseUrl}/hoteles`).pipe(
       catchError((error: any) => {
-        console.error('Error: ', error);
+        console.error('Error al obtener hoteles:', error);
         return throwError(() => error);
       })
     );
   }
 
-  createHotel(hotelRequest: HotelRequest) {
+  getById(idHotel: number): Observable<HotelResponse> {
+    return this.http.get<HotelResponse>(`${baseUrl}/hoteles/${idHotel}`).pipe(
+      catchError((error: any) => {
+        console.error('Error al obtener hotel:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  createHotel(hotelRequest: HotelRequest): Observable<HotelRequest> {
     return this.http.post<HotelRequest>(`${baseUrl}/hoteles`, hotelRequest).pipe(
       catchError((error: any) => {
-        console.error('Error: ', error);
+        console.error('Error al crear hotel:', error);
         return throwError(() => error);
       })
     );
   }
 
-  updateHotel(hotelRequest: HotelRequest) {
-    return this.http.put<HotelRequest>(`${baseUrl}/hoteles`, hotelRequest).pipe(
+  updateHotel(id: number, hotelRequest: HotelRequest): Observable<HotelRequest> {
+    return this.http.put<HotelRequest>(`${baseUrl}/hoteles/${id}`, hotelRequest).pipe(
       catchError((error: any) => {
-        console.error('Error: ', error);
+        console.error('Error al actualizar hotel:', error);
         return throwError(() => error);
       })
     );
   }
 
-  getById(idHotel: number): Observable<Hotel> {
-    return this.http.get<Hotel>(`${baseUrl}/hoteles/${idHotel}`).pipe(
+  deleteById(idHotel: number): Observable<void> {
+    return this.http.delete<void>(`${baseUrl}/hoteles/${idHotel}`).pipe(
       catchError((error: any) => {
-        console.error('Error: ', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  deleteById(idHotel: number) {
-    return this.http.delete<number>(`${baseUrl}/hoteles/${idHotel}`).pipe(
-      catchError((error: any) => {
-        console.error('Error: ', error);
+        console.error('Error al eliminar hotel:', error);
         return throwError(() => error);
       })
     );

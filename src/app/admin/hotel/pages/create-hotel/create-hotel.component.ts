@@ -2,7 +2,7 @@ import { Router } from '@angular/router';
 import { routes } from './../../../../app.routes';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Departamento } from '../../../interfaces/departamento.interface';
+import { Departamento } from '../../../../interfaces/departamento/departamento.interface';
 import { DepartamentoService } from '../../../services/departamento.service';
 import { HotelService } from '../../../services/hotel.service';
 import { CommonModule } from '@angular/common';

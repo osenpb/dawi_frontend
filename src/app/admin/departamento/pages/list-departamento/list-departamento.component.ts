@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Departamento } from '../../../interfaces/departamento.interface';
+import { Departamento } from '../../../../interfaces/departamento/departamento.interface';
 import { DepartamentoService } from '../../../services/departamento.service';
 
 @Component({

@@ -17,8 +17,7 @@ export const adminRoutes: Routes = [
       },
       {
         path: 'departamento',
-        loadChildren: () =>
-          import('./departamento/departamento.routes').then((m) => m.departamentoRoutes),
+        loadChildren: () => import('./departamento/departamento.routes').then((m) => m.departamentoRoutes),
       },
       {
         path: 'reserva',

@@ -1,6 +1,8 @@
-import { Cliente } from './cliente.interface';
-import { Hotel } from './hotel.interface';
-import { DetalleReserva } from './detalleReserva.interface';
+
+import { Cliente } from '../cliente/cliente.interface';
+
+import { DetalleReserva } from '../../interfaces/reserva/detalleReserva.interface';
+import { HotelResponse } from '../hotel/hotel-response.interface';
 
 export interface Reserva {
   id: number;
@@ -10,7 +12,7 @@ export interface Reserva {
   total: number;
   estado: 'CONFIRMADA' | 'CANCELADA';
   cliente: Cliente;
-  hotel: Hotel;
+  hotel: HotelResponse;
   detalles: DetalleReserva[];
 }
 

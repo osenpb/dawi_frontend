@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Departamento } from '../interfaces/departamento.interface';
+import { Departamento } from '../../interfaces/departamento/departamento.interface';
 import { catchError, Observable, throwError } from 'rxjs';
 
 const baseUrl = 'http://localhost:8080/api/admin';

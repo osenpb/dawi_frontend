@@ -2,8 +2,9 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Reserva } from '../../../interfaces/reserva.interface';
+
 import { ReservaService } from '../../../services/reserva.service';
+import { Reserva } from '../../../../interfaces/reserva/reserva.interface';
 
 @Component({
   standalone: true,

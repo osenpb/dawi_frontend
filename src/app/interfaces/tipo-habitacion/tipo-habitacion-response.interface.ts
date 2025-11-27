@@ -1,4 +1,4 @@
-export interface TipoHabitacion {
+export interface TipoHabitacionResponse {
   id?: number;
   nombre: string;
   descripcion: string;

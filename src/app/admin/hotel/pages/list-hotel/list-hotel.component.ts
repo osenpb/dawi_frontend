@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Hotel } from '../../../interfaces/hotel.interface';
+import { HotelResponse } from '../../../../interfaces/hotel/hotel-response.interface';
 import { HotelService } from '../../../services/hotel.service';
 import { RouterLink } from '@angular/router';
 
@@ -14,7 +14,7 @@ import { RouterLink } from '@angular/router';
 export class ListHotelPageComponent {
   private hotelService = inject(HotelService);
 
-  hoteles = signal<Hotel[]>([]);
+  hoteles = signal<HotelResponse[]>([]);
 
   constructor() {
     this.loadAllHoteles();

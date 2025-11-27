@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
-import { Reserva, ReservaAdminUpdateDTO } from '../interfaces/reserva.interface';
+import { Reserva, ReservaAdminUpdateDTO } from '../../interfaces/reserva/reserva.interface';
+
 
 const baseUrl = 'http://localhost:8080/api/admin';
 

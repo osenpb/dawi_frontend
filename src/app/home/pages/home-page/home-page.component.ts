@@ -35,7 +35,7 @@ export class HomePageComponent {
     });
   }
 
-  getImagenDepartamento(nombre: string): string {
+  getImagenDepartamento(nombre: string): string { // esto sobra
     const nombreLower = nombre
       .toLowerCase()
       .normalize('NFD')

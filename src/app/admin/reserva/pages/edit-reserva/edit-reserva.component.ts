@@ -4,9 +4,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReservaService } from '../../../services/reserva.service';
 import { HotelService } from '../../../services/hotel.service';
-import { Reserva, ReservaAdminUpdateDTO } from '../../../interfaces/reserva.interface';
-import { Hotel } from '../../../interfaces/hotel.interface';
-import { Habitacion } from '../../../interfaces/habitacion.interface';
+
+import { HotelResponse } from '../../../../interfaces/hotel/hotel-response.interface';
+import { HabitacionResponse } from '../../../../interfaces/habitacion/habitacion-response.interface';
+import { Reserva, ReservaAdminUpdateDTO } from '../../../../interfaces/reserva/reserva.interface';
+
 
 @Component({
   standalone: true,
@@ -24,8 +26,8 @@ export class EditReservaComponent implements OnInit {
 
   reservaId = signal<number | null>(null);
   reserva = signal<Reserva | null>(null);
-  hoteles = signal<Hotel[]>([]);
-  habitacionesDisponibles = signal<Habitacion[]>([]);
+  hoteles = signal<HotelResponse[]>([]);
+  habitacionesDisponibles = signal<HabitacionResponse[]>([]);
   habitacionesSeleccionadas = signal<number[]>([]);
   loading = signal<boolean>(true);
   saving = signal<boolean>(false);
