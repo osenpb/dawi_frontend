@@ -1,7 +1,7 @@
 import { Role } from "./role.interface"
 
 
-export type UserResponseDTO = {
+export type UserResponse = {
   id: number,
   username: string,
   email: string,

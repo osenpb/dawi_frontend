@@ -1,4 +1,4 @@
-import { UserResponseDTO } from "./userResponseDTO.interface";
+import { UserResponse } from "./userResponse.interface";
 
 export type RegisterRequest = {
   username: string | null;
@@ -15,7 +15,7 @@ export type LoginRequest = {
 
 
 export type AuthResponse = {
-  userResponseDTO: UserResponseDTO, 
+  userResponseDTO: UserResponse,
   token: string
 }
 

@@ -17,6 +17,10 @@ export const homeRoutes: Routes = [
         component: HomePageComponent,
       },
       {
+        path: 'hoteles',
+        component: HotelesPageComponent,
+      },
+      {
         path: 'departamentos',
         component: DepartamentosPageComponent,
       },

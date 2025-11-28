@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ReservaPublicService } from '../../services/reserva-public.service';
 import { DepartamentoPublic } from '../../interfaces/departamento-public.interface';
-import { NavBarComponent } from "../../layout/navbar/navbar.component";
+import { NavbarComponent } from "../../layout/navbar/navbar.component";
 
 @Component({
   standalone: true,
   selector: 'app-home-page',
-  imports: [CommonModule, RouterLink, NavBarComponent],
+  imports: [CommonModule, RouterLink, NavbarComponent],
   templateUrl: './home-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -36,7 +36,7 @@ export class HomePageComponent {
     });
   }
 
-  getImagenDepartamento(nombre: string): string { // esto sobra
+  getImagenDepartamento(nombre: string): string { // esto sobra creo, verificar luego
     const nombreLower = nombre
       .toLowerCase()
       .normalize('NFD')
