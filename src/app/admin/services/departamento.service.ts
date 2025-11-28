@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Departamento } from '../../interfaces/departamento/departamento.interface';
+import { DepartamentoResponse } from '../../interfaces/departamento/departamento-response.interface';
 import { catchError, Observable, throwError } from 'rxjs';
 
 const baseUrl = 'http://localhost:8080/api/admin';
@@ -11,8 +11,8 @@ const baseUrl = 'http://localhost:8080/api/admin';
 export class DepartamentoService {
   private http = inject(HttpClient);
 
-  getAll(): Observable<Departamento[]> {
-    return this.http.get<Departamento[]>(`${baseUrl}/departamentos`).pipe(
+  getAll(): Observable<DepartamentoResponse[]> {
+    return this.http.get<DepartamentoResponse[]>(`${baseUrl}/departamentos`).pipe(
       catchError((error: any) => {
         console.error('Error al obtener departamentos:', error);
         return throwError(() => error);
@@ -20,8 +20,8 @@ export class DepartamentoService {
     );
   }
 
-  getById(id: number): Observable<Departamento> {
-    return this.http.get<Departamento>(`${baseUrl}/departamentos/${id}`).pipe(
+  getById(id: number): Observable<DepartamentoResponse> {
+    return this.http.get<DepartamentoResponse>(`${baseUrl}/departamentos/${id}`).pipe(
       catchError((error: any) => {
         console.error('Error al obtener departamento:', error);
         return throwError(() => error);
@@ -29,8 +29,8 @@ export class DepartamentoService {
     );
   }
 
-  create(departamento: Omit<Departamento, 'id'>): Observable<Departamento> {
-    return this.http.post<Departamento>(`${baseUrl}/departamentos`, departamento).pipe(
+  create(departamento: Omit<DepartamentoResponse, 'id'>): Observable<DepartamentoResponse> {
+    return this.http.post<DepartamentoResponse>(`${baseUrl}/departamentos`, departamento).pipe(
       catchError((error: any) => {
         console.error('Error al crear departamento:', error);
         return throwError(() => error);
@@ -38,8 +38,8 @@ export class DepartamentoService {
     );
   }
 
-  update(id: number, departamento: Omit<Departamento, 'id'>): Observable<Departamento> {
-    return this.http.put<Departamento>(`${baseUrl}/departamentos/${id}`, departamento).pipe(
+  update(id: number, departamento: Omit<DepartamentoResponse, 'id'>): Observable<DepartamentoResponse> {
+    return this.http.put<DepartamentoResponse>(`${baseUrl}/departamentos/${id}`, departamento).pipe(
       catchError((error: any) => {
         console.error('Error al actualizar departamento:', error);
         return throwError(() => error);

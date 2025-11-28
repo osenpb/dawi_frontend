@@ -1,25 +1,21 @@
 <div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
   <h1 class="text-3xl font-bold mb-6">Editar Hotel</h1>
 
-  <!-- Mensaje de error -->
-  @if (error) {
+  @if (error()) {
     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-      {{ error }}
+      {{ error() }}
     </div>
   }
 
-  <!-- Indicador de carga
-  @if (loading) {
+
+  @if (loading()) {
     <div class="text-center py-8">
       <p class="text-gray-600">Cargando datos...</p>
     </div>
-  } -->
-
-  <!-- Formulario -->
-  @if (!loading) {
+  } @else {
     <form [formGroup]="hotelForm" (ngSubmit)="onSubmit()">
 
-      <!-- Nombre -->
+
       <div class="mb-4">
         <label class="block text-gray-700 font-semibold">Nombre: *</label>
         <input
@@ -61,7 +57,7 @@
           [class.border-red-500]="hotelForm.get('departamento')?.invalid && hotelForm.get('departamento')?.touched"
         >
           <option value="">Selecciona un departamento</option>
-          @for (d of departamentos; track d.id) {
+          @for (d of departamentos(); track d.id) {
             <option [value]="d.id">
               {{ d.nombre }}
             </option>
@@ -124,7 +120,7 @@
                 <label class="block font-semibold text-sm">Tipo: *</label>
                 <select formControlName="tipoHabitacion" class="w-full border rounded p-2 mt-1">
                   <option value="">Selecciona tipo</option>
-                  @for (tipo of tiposHabitacion; track tipo.id) {
+                  @for (tipo of tiposHabitacion(); track tipo.id) {
                     <option [value]="tipo.id">
                       {{ tipo.nombre }}
                     </option>

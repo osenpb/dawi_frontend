@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
@@ -6,6 +6,7 @@ import { HotelService } from '../../../services/hotel.service';
 import { TipoHabitacionService } from '../../../services/tipo-habitacion.service';
 import { DepartamentoService } from '../../../services/departamento.service';
 import { forkJoin } from 'rxjs';
+import { TipoHabitacionResponse } from '../../../../interfaces/tipo-habitacion/tipo-habitacion-response.interface';
 
 @Component({
   selector: 'app-hotel-form',
@@ -15,11 +16,13 @@ import { forkJoin } from 'rxjs';
 })
 export class UpdateHotelFormComponent implements OnInit {
   hotelForm!: FormGroup;
-  tiposHabitacion: any[] = [];
-  departamentos: any[] = [];
 
-  loading = true;
-  error: string | null = null;
+
+  tiposHabitacion = signal<TipoHabitacionResponse[]>([]);
+  departamentos = signal<any[]>([]);
+  loading = signal(true);
+  error = signal<string | null>(null);
+
   hotelId!: number;
 
   constructor(
@@ -32,12 +35,11 @@ export class UpdateHotelFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Obtener ID desde la ruta
     this.hotelId = Number(this.route.snapshot.paramMap.get('id'));
 
     if (!this.hotelId || isNaN(this.hotelId)) {
-      this.error = 'ID de hotel inválido';
-      this.loading = false;
+      this.error.set('ID de hotel inválido');
+      this.loading.set(false);
       return;
     }
 
@@ -78,14 +80,10 @@ export class UpdateHotelFormComponent implements OnInit {
     }
   }
 
-  // ===========================
-  // CARGA DE DATOS CON FORKJOIN
-  // ===========================
   loadData() {
-    this.loading = true;
-    this.error = null;
+    this.loading.set(true);
+    this.error.set(null);
 
-    // Cargar TODOS los datos en paralelo
     forkJoin({
       tipos: this.tipoHabitacionService.getAll(),
       departamentos: this.departamentoService.getAll(),
@@ -94,54 +92,51 @@ export class UpdateHotelFormComponent implements OnInit {
       next: ({ tipos, departamentos, hotel }) => {
         console.log('Datos cargados:', { tipos, departamentos, hotel });
 
-        // Asignar datos a las propiedades
-        this.tiposHabitacion = tipos;
-        this.departamentos = departamentos;
 
-        // Rellenar el formulario con los datos del hotel
+        this.tiposHabitacion.set(tipos);
+        this.departamentos.set(departamentos);
+
+
         this.hotelForm.patchValue({
           nombre: hotel.nombre,
           direccion: hotel.direccion,
           departamento: hotel.departamento?.id || ''
         });
 
-        // Limpiar habitaciones existentes
+        // Limpiar habitaciones
         while (this.habitaciones.length > 0) {
           this.habitaciones.removeAt(0);
         }
 
-        // Agregar habitaciones del hotel
+
         if (hotel.habitaciones && hotel.habitaciones.length > 0) {
           hotel.habitaciones.forEach((hab: any) => {
             this.addHabitacion(hab);
           });
         }
 
-        this.loading = false;
+
+        this.loading.set(false);
         console.log('Formulario cargado:', this.hotelForm.value);
       },
       error: (err) => {
         console.error('Error al cargar datos:', err);
 
-        // Mensajes de error más específicos
+        let errorMsg = 'Error al cargar los datos';
         if (err.status === 404) {
-          this.error = 'Hotel no encontrado';
+          errorMsg = 'Hotel no encontrado';
         } else if (err.status === 403) {
-          this.error = 'No tienes permisos para acceder a este hotel';
+          errorMsg = 'No tienes permisos para acceder a este hotel';
         } else if (err.status === 0) {
-          this.error = 'No se puede conectar con el servidor. Verifica que esté ejecutándose.';
-        } else {
-          this.error = 'Error al cargar los datos. Revisa la consola para más detalles.';
+          errorMsg = 'No se puede conectar con el servidor';
         }
 
-        this.loading = false;
+        this.error.set(errorMsg);
+        this.loading.set(false);
       }
     });
   }
 
-  // ===========================
-  // GUARDAR CAMBIOS
-  // ===========================
   onSubmit() {
     if (this.hotelForm.invalid) {
       alert('Por favor completa todos los campos requeridos');
@@ -149,13 +144,12 @@ export class UpdateHotelFormComponent implements OnInit {
       return;
     }
 
-    // Construir payload con la estructura correcta
     const payload = {
       nombre: this.hotelForm.value.nombre,
       direccion: this.hotelForm.value.direccion,
       departamentoId: Number(this.hotelForm.value.departamento),
       habitaciones: this.hotelForm.value.habitaciones.map((hab: any) => ({
-        ...(hab.id ? { id: hab.id } : {}), // Solo incluir ID si existe (para updates)
+        ...(hab.id ? { id: hab.id } : {}),
         numero: hab.numero,
         estado: hab.estado,
         precio: hab.precio,
@@ -169,7 +163,7 @@ export class UpdateHotelFormComponent implements OnInit {
       next: (response) => {
         console.log('Respuesta del servidor:', response);
         alert('Hotel actualizado correctamente');
-        this.router.navigate(['/hoteles']);
+        this.router.navigate(['/admin/hotel/list']);
       },
       error: (err) => {
         console.error('Error al guardar:', err);

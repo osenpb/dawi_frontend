@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Departamento } from '../../../../interfaces/departamento/departamento.interface';
+import { DepartamentoResponse } from '../../../../interfaces/departamento/departamento-response.interface';
 import { DepartamentoService } from '../../../services/departamento.service';
 
 @Component({
@@ -14,7 +14,7 @@ import { DepartamentoService } from '../../../services/departamento.service';
 export class ListDepartamentoComponent {
   private departamentoService = inject(DepartamentoService);
 
-  departamentos = signal<Departamento[]>([]);
+  departamentos = signal<DepartamentoResponse[]>([]);
   loading = signal<boolean>(true);
 
   constructor() {

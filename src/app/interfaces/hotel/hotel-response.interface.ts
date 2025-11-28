@@ -1,12 +1,12 @@
 
-import { Departamento } from "../departamento/departamento.interface";
+import { DepartamentoResponse } from "../departamento/departamento-response.interface";
 import { HabitacionResponse } from "../habitacion/habitacion-response.interface";
 
 
 
 export interface HotelResponse {
   id:           number;
-  departamento: Departamento;
+  departamento: DepartamentoResponse;
   nombre:       string;
   direccion:    string;
   habitaciones: HabitacionResponse[]
