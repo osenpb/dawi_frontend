@@ -1,0 +1,153 @@
+<nav class="fixed w-full z-50 top-0 start-0 backdrop-blur-lg bg-slate-900/80 border-b border-gold-400/20 transition-all duration-300">
+  <div class="max-w-7xl flex flex-wrap items-center justify-between mx-auto p-4">
+
+    <!-- Logo -->
+    <a [routerLink]="['/']" class="flex items-center space-x-3 group">
+      <div class="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+        <i class="bi bi-gem text-slate-900 text-xl"></i>
+      </div>
+      <span class="self-center text-2xl font-serif font-bold bg-gradient-to-r from-gold-400 to-gold-200 bg-clip-text text-transparent">
+        Luxora
+      </span>
+    </a>
+
+    <!-- User Menu & Mobile Toggle -->
+    <div class="flex items-center md:order-2 space-x-3">
+
+      <!-- Si el usuario está autenticado -->
+      @if (usuario()) {
+        <!-- User Dropdown Button -->
+        <button
+          type="button"
+          class="flex text-sm bg-slate-800 rounded-full ring-2 ring-gold-400/30 hover:ring-gold-400 transition-all duration-300"
+          (click)="toggleUserMenu()"
+          [attr.aria-expanded]="userMenuOpen()">
+          <span class="sr-only">Abrir menú de usuario</span>
+          <img
+            class="w-10 h-10 rounded-full object-cover"
+            [src]="usuario()?.avatar || 'https://ui-avatars.com/api/?name=' + usuario()?.nombre + '&background=d4af37&color=1e293b'"
+            [alt]="usuario()?.nombre">
+        </button>
+
+        <!-- Dropdown Menu -->
+        @if (userMenuOpen()) {
+          <div class="absolute right-0 top-16 z-50 bg-slate-800 backdrop-blur-xl border border-gold-400/30 rounded-2xl shadow-2xl shadow-gold-400/10 w-56">
+            <div class="px-4 py-4 text-sm border-b border-gold-400/20">
+              <span class="block text-white font-semibold mb-1">{{ usuario()?.nombre }}</span>
+              <span class="block text-gray-400 text-xs truncate">{{ usuario()?.email }}</span>
+            </div>
+
+            <ul class="p-2 text-sm">
+              <li>
+                <a
+                  [routerLink]="['/dashboard']"
+                  class="flex items-center gap-3 w-full px-4 py-2.5 text-gray-300 hover:bg-gold-400/10 hover:text-gold-400 rounded-xl transition-all duration-200">
+                  <i class="bi bi-speedometer2"></i>
+                  <span>Dashboard</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  [routerLink]="['/mis-reservas']"
+                  class="flex items-center gap-3 w-full px-4 py-2.5 text-gray-300 hover:bg-gold-400/10 hover:text-gold-400 rounded-xl transition-all duration-200">
+                  <i class="bi bi-calendar-check"></i>
+                  <span>Mis Reservas</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  [routerLink]="['/perfil']"
+                  class="flex items-center gap-3 w-full px-4 py-2.5 text-gray-300 hover:bg-gold-400/10 hover:text-gold-400 rounded-xl transition-all duration-200">
+                  <i class="bi bi-gear"></i>
+                  <span>Configuración</span>
+                </a>
+              </li>
+              <li class="border-t border-gold-400/20 mt-2 pt-2">
+                <button
+                  (click)="logout()"
+                  class="flex items-center gap-3 w-full px-4 py-2.5 text-red-400 hover:bg-red-400/10 hover:text-red-300 rounded-xl transition-all duration-200">
+                  <i class="bi bi-box-arrow-right"></i>
+                  <span>Cerrar Sesión</span>
+                </button>
+              </li>
+            </ul>
+          </div>
+        }
+      } @else {
+        <!-- Botones de login/registro si no está autenticado -->
+        <div class="flex items-center gap-2">
+          <a
+            [routerLink]="['/auth/login']"
+            class="px-4 py-2 text-gray-300 hover:text-gold-400 font-medium transition-colors duration-200">
+            Iniciar Sesión
+          </a>
+          <a
+            [routerLink]="['/auth/register']"
+            class="px-4 py-2 bg-linear-to-r from-gold-400 to-gold-500 text-slate-900 font-semibold rounded-lg hover:shadow-lg hover:shadow-gold-400/30 transition-all duration-200">
+            Registrarse
+          </a>
+        </div>
+      }
+
+      <!-- Mobile Menu Button -->
+      <button
+        (click)="toggleMobileMenu()"
+        type="button"
+        class="inline-flex items-center p-2 w-10 h-10 justify-center text-gray-400 rounded-lg md:hidden hover:bg-slate-800 hover:text-gold-400 transition-all duration-200"
+        [attr.aria-expanded]="mobileMenuOpen()">
+        <span class="sr-only">Abrir menú</span>
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Navigation Links -->
+    <div
+      class="items-center justify-between w-full md:flex md:w-auto md:order-1"
+      [class.hidden]="!mobileMenuOpen()"
+      id="navbar-menu">
+      <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gold-400/20 rounded-2xl bg-slate-800/50 md:flex-row md:space-x-2 md:mt-0 md:border-0 md:bg-transparent">
+        <li>
+          <a
+            [routerLink]="['/']"
+            routerLinkActive="bg-gold-400/10 text-gold-400"
+            [routerLinkActiveOptions]="{exact: true}"
+            class="block py-2.5 px-4 rounded-xl font-semibold transition-all duration-200 hover:bg-slate-800 hover:text-gold-400">
+            Inicio
+          </a>
+        </li>
+        <li>
+          <a
+            [routerLink]="['/departamentos']"
+            routerLinkActive="bg-gold-400/10 text-gold-400"
+            class="block py-2.5 px-4 text-gray-300 rounded-xl hover:bg-slate-800 hover:text-gold-400 transition-all duration-200">
+            Destinos
+          </a>
+        </li>
+        <li>
+          <a
+            [routerLink]="['/hoteles']"
+            routerLinkActive="bg-gold-400/10 text-gold-400"
+            class="block py-2.5 px-4 text-gray-300 rounded-xl hover:bg-slate-800 hover:text-gold-400 transition-all duration-200">
+            Hoteles
+          </a>
+        </li>
+        <li>
+          <a
+            href="#servicios"
+            class="block py-2.5 px-4 text-gray-300 rounded-xl hover:bg-slate-800 hover:text-gold-400 transition-all duration-200">
+            Servicios
+          </a>
+        </li>
+        <li>
+          <a
+            href="#contacto"
+            class="block py-2.5 px-4 text-gray-300 rounded-xl hover:bg-slate-800 hover:text-gold-400 transition-all duration-200">
+            Contacto
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

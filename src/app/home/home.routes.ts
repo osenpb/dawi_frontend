@@ -5,32 +5,39 @@ import { HotelesPageComponent } from './pages/hoteles-page/hoteles-page.componen
 import { ReservaPageComponent } from './pages/reserva-page/reserva-page.component';
 import { ConfirmacionPageComponent } from './pages/confirmacion-page/confirmacion-page.component';
 import { MisReservasPageComponent } from './pages/mis-reservas-page/mis-reservas-page.component';
+import { ClienteLayoutComponent } from './layout/cliente-layout/cliente-layout.component';
 
 export const homeRoutes: Routes = [
   {
     path: '',
-    component: HomePageComponent,
-  },
-  {
-    path: 'departamentos',
-    component: DepartamentosPageComponent,
-  },
-  {
-    path: 'hoteles/:depId',
-    component: HotelesPageComponent,
-  },
-  {
-    path: 'hotel/:hotelId/reservar',
-    component: ReservaPageComponent,
-  },
-  {
-    path: 'reserva/:reservaId/confirmacion',
-    component: ConfirmacionPageComponent,
-  },
-  {
-    path: 'mis-reservas',
-    component: MisReservasPageComponent,
-  },
+    component: ClienteLayoutComponent,
+    children: [
+      {
+        path: '',
+        component: HomePageComponent,
+      },
+      {
+        path: 'departamentos',
+        component: DepartamentosPageComponent,
+      },
+      {
+        path: 'hoteles/:depId',
+        component: HotelesPageComponent,
+      },
+      {
+        path: 'hotel/:hotelId/reservar',
+        component: ReservaPageComponent,
+      },
+      {
+        path: 'reserva/:reservaId/confirmacion',
+        component: ConfirmacionPageComponent,
+      },
+      {
+        path: 'mis-reservas',
+        component: MisReservasPageComponent,
+      },
+    ]
+  }
 ];
 
 export default homeRoutes;
