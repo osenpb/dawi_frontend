@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, map, Observable, throwError } from 'rxjs';
 import { DepartamentoPublic } from '../interfaces/departamento-public.interface';
 import { HotelesResponse, HotelDetailResponse } from '../interfaces/hotel-public.interface';
 import { HabitacionesDisponiblesResponse } from '../interfaces/habitacion-public.interface';
@@ -85,7 +85,29 @@ export class ReservaPublicService {
 
   // Obtener detalle de reserva
   getReservaDetalle(reservaId: number): Observable<ReservaDetalleResponse> {
-    return this.http.get<ReservaDetalleResponse>(`${baseUrl}/reserva/reserva/${reservaId}`).pipe(
+    return this.http.get<any>(`${baseUrl}/reserva/reserva/${reservaId}`).pipe(
+      map((data: any) => {
+        // Transformar datos para aplanar la estructura
+        return {
+          ...data,
+          hotelNombre: data.hotel?.nombre || '',
+          hotelDireccion: data.hotel?.direccion || '',
+          clienteNombre: `${data.cliente?.nombre || ''} ${data.cliente?.apellido || ''}`.trim(),
+          clienteDni: data.cliente?.documento || '',
+          clienteEmail: data.cliente?.email || '',
+          montoTotal: data.total,
+          habitaciones: data.detalles?.map((d: any) => {
+            // Buscar habitación en el hotel
+            const hab = data.hotel?.habitaciones?.find((h: any) => h.id === d.habitacionId);
+            return {
+              id: d.habitacionId,
+              numero: hab?.numero || d.habitacionId.toString(),
+              tipo: hab?.tipoHabitacion?.nombre || 'Standard',
+              precio: d.precioNoche || 0
+            };
+          }) || []
+        };
+      }),
       catchError((error: any) => {
         console.error('Error al obtener detalle de reserva:', error);
         return throwError(() => error);

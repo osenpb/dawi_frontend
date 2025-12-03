@@ -29,6 +29,20 @@ export interface ReservaDetalleResponse {
   fechaFin: string;
   estado: string;
   total: number;
+  montoTotal?: number;
+  // Campos aplanados para fácil acceso
+  hotelNombre?: string;
+  hotelDireccion?: string;
+  clienteNombre?: string;
+  clienteDni?: string;
+  clienteEmail?: string;
+  habitaciones?: {
+    id: number;
+    numero: string;
+    tipo: string;
+    precio: number;
+  }[];
+  // Estructura anidada original
   cliente: {
     id: number;
     nombre: string;

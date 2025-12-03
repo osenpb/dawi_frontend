@@ -5,7 +5,7 @@ export type UserResponse = {
   id: number,
   username: string,
   email: string,
-  role: Role
-
+  role: Role,
+  telefono?: string
 }
 

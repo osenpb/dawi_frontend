@@ -3,6 +3,7 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
 import { DepartamentosPageComponent } from './pages/departamentos-page/departamentos-page.component';
 import { HotelesPageComponent } from './pages/hoteles-page/hoteles-page.component';
 import { ReservaPageComponent } from './pages/reserva-page/reserva-page.component';
+import { PagoPageComponent } from './pages/pago-page/pago-page.component';
 import { ConfirmacionPageComponent } from './pages/confirmacion-page/confirmacion-page.component';
 import { MisReservasPageComponent } from './pages/mis-reservas-page/mis-reservas-page.component';
 import { ClienteLayoutComponent } from './layout/cliente-layout/cliente-layout.component';
@@ -31,6 +32,10 @@ export const homeRoutes: Routes = [
       {
         path: 'hotel/:hotelId/reservar',
         component: ReservaPageComponent,
+      },
+      {
+        path: 'reserva/:reservaId/pago',
+        component: PagoPageComponent,
       },
       {
         path: 'reserva/:reservaId/confirmacion',
