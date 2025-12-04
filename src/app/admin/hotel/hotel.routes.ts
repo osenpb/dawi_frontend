@@ -1,24 +1,27 @@
+import { Routes } from '@angular/router';
 
-import { Routes } from "@angular/router";
-
-import { UpdateHotelFormComponent } from "./pages/update-page/update-page.component";
-import { ListHotelPageComponent } from "./pages/list-hotel/list-hotel.component";
-import { CreateHotelPageComponent } from "./pages/create-hotel/create-hotel.component";
+import { SelectDepartamentoHotelComponent } from './pages/select-departamento/select-departamento.component';
+import { ListHotelPageComponent } from './pages/list-hotel/list-hotel.component';
+import { CreateHotelPageComponent } from './pages/create-hotel/create-hotel.component';
+import { UpdateHotelFormComponent } from './pages/update-page/update-page.component';
 
 export const hotelAdminRoutes: Routes = [
   {
     path: 'list',
-    component: ListHotelPageComponent
+    component: SelectDepartamentoHotelComponent,
+  },
+  {
+    path: 'departamento/:departamentoId',
+    component: ListHotelPageComponent,
   },
   {
     path: 'crear',
-    component: CreateHotelPageComponent
-
+    component: CreateHotelPageComponent,
   },
   {
     path: 'editar/:id',
-    component: UpdateHotelFormComponent
-  }
-]
+    component: UpdateHotelFormComponent,
+  },
+];
 
 export default hotelAdminRoutes;

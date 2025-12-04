@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DepartamentoResponse } from '../../../../interfaces/departamento/departamento-response.interface';
@@ -11,13 +11,19 @@ import { DepartamentoService } from '../../../../services/departamento.service';
   templateUrl: './list-departamento.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ListDepartamentoComponent {
+export class ListDepartamentoComponent implements OnInit {
   private departamentoService = inject(DepartamentoService);
 
   departamentos = signal<DepartamentoResponse[]>([]);
   loading = signal<boolean>(true);
 
-  constructor() {
+  // Modal eliminar
+  showModalEliminar = signal<boolean>(false);
+  departamentoSeleccionado = signal<DepartamentoResponse | null>(null);
+  procesando = signal<boolean>(false);
+  successMessage = signal<string | null>(null);
+
+  ngOnInit(): void {
     this.loadDepartamentos();
   }
 
@@ -35,17 +41,37 @@ export class ListDepartamentoComponent {
     });
   }
 
-  eliminarDepartamento(id: number): void {
-    if (confirm('¿Estás seguro de que deseas eliminar este departamento?')) {
-      this.departamentoService.delete(id).subscribe({
-        next: () => {
-          this.loadDepartamentos();
-        },
-        error: (err) => {
-          console.error('Error eliminando departamento', err);
-          alert('No se pudo eliminar el departamento. Puede tener hoteles asociados.');
-        },
-      });
-    }
+  // Modal eliminar
+  abrirModalEliminar(dep: DepartamentoResponse): void {
+    this.departamentoSeleccionado.set(dep);
+    this.showModalEliminar.set(true);
+  }
+
+  cerrarModalEliminar(): void {
+    this.showModalEliminar.set(false);
+    this.departamentoSeleccionado.set(null);
+  }
+
+  confirmarEliminar(): void {
+    const dep = this.departamentoSeleccionado();
+    if (!dep?.id) return;
+
+    this.procesando.set(true);
+    this.departamentoService.delete(dep.id).subscribe({
+      next: () => {
+        this.successMessage.set(`Departamento "${dep.nombre}" eliminado exitosamente`);
+        this.cerrarModalEliminar();
+        this.procesando.set(false);
+        this.loadDepartamentos();
+
+        // Ocultar mensaje después de 5 segundos
+        setTimeout(() => this.successMessage.set(null), 5000);
+      },
+      error: (err) => {
+        console.error('Error eliminando departamento', err);
+        alert('No se pudo eliminar el departamento. Puede tener hoteles asociados.');
+        this.procesando.set(false);
+      },
+    });
   }
 }

@@ -19,6 +19,7 @@ export class EditDepartamentoComponent implements OnInit {
 
   departamentoId = signal<number | null>(null);
   loading = signal<boolean>(true);
+  saving = signal<boolean>(false);
 
   departamentoForm = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(3)]],
@@ -63,6 +64,7 @@ export class EditDepartamentoComponent implements OnInit {
     const id = this.departamentoId();
     if (!id) return;
 
+    this.saving.set(true);
     const formValue = this.departamentoForm.getRawValue();
 
     const departamentoData = {
@@ -78,6 +80,7 @@ export class EditDepartamentoComponent implements OnInit {
       error: (err) => {
         console.error('Error al actualizar departamento:', err);
         alert('Error al actualizar el departamento');
+        this.saving.set(false);
       },
     });
   }

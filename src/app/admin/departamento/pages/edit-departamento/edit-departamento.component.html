@@ -1,89 +1,88 @@
 <div class="p-8">
-  <div class="max-w-2xl mx-auto bg-white shadow-sm border border-gray-200 rounded-2xl p-8">
-
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-3xl font-bold text-gray-800 tracking-tight">
-        Editar Departamento
-      </h2>
-      <button [routerLink]="['/admin/departamento/list']"
-        class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all">
-        ← Volver
-      </button>
-    </div>
+  <div class="max-w-2xl mx-auto">
 
     <!-- Loading -->
     @if (loading()) {
-    <div class="flex justify-center items-center py-12">
-      <div class="flex items-center gap-2 text-gray-500">
-        <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-12">
+      <div class="flex justify-center items-center gap-2 text-gray-500">
+        <svg class="animate-spin h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none"
           viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor"
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
           </path>
         </svg>
-        <span>Cargando datos...</span>
+        <span class="text-lg">Cargando datos...</span>
       </div>
     </div>
     }
 
     <!-- Formulario -->
     @else {
-    <form (ngSubmit)="onSubmit()" [formGroup]="departamentoForm" class="space-y-6">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
 
-      <!-- ID (solo lectura) -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">
-          ID
-        </label>
-        <input type="text" [value]="departamentoId()" disabled
-          class="w-full px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 text-gray-500 cursor-not-allowed">
+      <!-- Cabecera azul -->
+      <div class="bg-blue-600 px-6 py-4">
+        <h1 class="text-xl font-bold text-white">Editar Departamento</h1>
       </div>
 
-      <!-- Nombre -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">
-          Nombre del Departamento
-        </label>
-        <input type="text" formControlName="nombre" placeholder="Ej: Lima"
-          class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-          [class.border-red-500]="nombreInvalid" [class.border-gray-300]="!nombreInvalid">
-        @if (nombreInvalid) {
-        <p class="mt-1 text-sm text-red-500">
-          El nombre es requerido (mínimo 3 caracteres)
-        </p>
-        }
-      </div>
+      <!-- Contenido del formulario -->
+      <form (ngSubmit)="onSubmit()" [formGroup]="departamentoForm" class="p-6 space-y-5">
 
-      <!-- Detalle -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">
-          Detalle
-        </label>
-        <textarea formControlName="detalle" placeholder="Ej: La capital del Perú" rows="3"
-          class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none"
-          [class.border-red-500]="detalleInvalid" [class.border-gray-300]="!detalleInvalid"></textarea>
-        @if (detalleInvalid) {
-        <p class="mt-1 text-sm text-red-500">
-          El detalle es requerido (mínimo 5 caracteres)
-        </p>
-        }
-      </div>
+        <!-- Nombre -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Nombre del Departamento
+          </label>
+          <input type="text" formControlName="nombre" placeholder="Ej: Lima"
+            class="w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            [class.border-red-500]="nombreInvalid" [class.border-gray-300]="!nombreInvalid">
+          @if (nombreInvalid) {
+          <p class="mt-1 text-sm text-red-500">
+            El nombre es requerido (mínimo 3 caracteres)
+          </p>
+          }
+        </div>
 
-      <!-- Botones -->
-      <div class="flex gap-4 pt-4">
-        <button type="submit"
-          class="flex-1 py-3 bg-amber-500 text-white font-medium text-sm rounded-xl hover:bg-amber-600 transition active:scale-[.98] shadow-sm">
-          Guardar Cambios
-        </button>
-        <button type="button" [routerLink]="['/admin/departamento/list']"
-          class="flex-1 py-3 bg-gray-100 text-gray-700 font-medium text-sm rounded-xl hover:bg-gray-200 transition">
-          Cancelar
-        </button>
-      </div>
+        <!-- Detalle -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Detalle del Departamento
+          </label>
+          <input type="text" formControlName="detalle" placeholder="Ej: La capital del Perú"
+            class="w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            [class.border-red-500]="detalleInvalid" [class.border-gray-300]="!detalleInvalid">
+          @if (detalleInvalid) {
+          <p class="mt-1 text-sm text-red-500">
+            El detalle es requerido
+          </p>
+          }
+        </div>
 
-    </form>
+        <!-- Botones -->
+        <div class="flex justify-between pt-4">
+          <button type="button" [routerLink]="['/admin/departamento/list']"
+            class="px-5 py-2.5 bg-gray-700 text-white font-medium rounded-lg hover:bg-gray-800 transition">
+            Cancelar
+          </button>
+          <button type="submit" [disabled]="saving()"
+            class="px-5 py-2.5 bg-amber-500 text-white font-medium rounded-lg hover:bg-amber-600 transition disabled:opacity-50 flex items-center gap-2">
+            @if (saving()) {
+            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
+            Guardando...
+            } @else {
+            Guardar
+            }
+          </button>
+        </div>
+
+      </form>
+    </div>
     }
 
   </div>

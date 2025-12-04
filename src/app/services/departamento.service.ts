@@ -39,7 +39,10 @@ export class DepartamentoService {
     );
   }
 
-  update(id: number, departamento: Omit<DepartamentoResponse, 'id'>): Observable<DepartamentoResponse> {
+  update(
+    id: number,
+    departamento: Omit<DepartamentoResponse, 'id'>
+  ): Observable<DepartamentoResponse> {
     return this.http.put<DepartamentoResponse>(`${baseUrl}/departamentos/${id}`, departamento).pipe(
       catchError((error: any) => {
         console.error('Error al actualizar departamento:', error);

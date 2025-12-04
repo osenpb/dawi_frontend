@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -16,6 +16,8 @@ export class CreateDepartamentoComponent {
   private departamentoService = inject(DepartamentoService);
   private router = inject(Router);
 
+  saving = signal<boolean>(false);
+
   departamentoForm = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(3)]],
     detalle: ['', [Validators.required, Validators.minLength(5)]],
@@ -27,6 +29,7 @@ export class CreateDepartamentoComponent {
       return;
     }
 
+    this.saving.set(true);
     const formValue = this.departamentoForm.getRawValue();
 
     const departamentoData = {
@@ -42,6 +45,7 @@ export class CreateDepartamentoComponent {
       error: (err) => {
         console.error('Error al crear departamento:', err);
         alert('Error al crear el departamento');
+        this.saving.set(false);
       },
     });
   }

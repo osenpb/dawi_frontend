@@ -4,7 +4,6 @@ import { catchError, Observable, throwError } from 'rxjs';
 import { HotelResponse } from '../interfaces/hotel/hotel-response.interface';
 import { HotelRequest } from '../interfaces/hotel/hotel-request.interface';
 
-
 const baseUrl = 'http://localhost:8080/api/admin';
 
 @Injectable({
@@ -65,5 +64,9 @@ export class HotelService {
         return throwError(() => error);
       })
     );
+  }
+
+  delete(idHotel: number): Observable<void> {
+    return this.deleteById(idHotel);
   }
 }
