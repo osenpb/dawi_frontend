@@ -20,6 +20,12 @@ export class ListReservaComponent {
   loading = signal<boolean>(true);
   dniBusqueda = signal<string>('');
   modoFiltrado = signal<boolean>(false);
+  successMessage = signal<string | null>(null);
+
+  // Modal eliminar
+  showModalEliminar = signal<boolean>(false);
+  reservaSeleccionada = signal<Reserva | null>(null);
+  procesando = signal<boolean>(false);
 
   constructor() {
     this.loadReservas();
@@ -75,22 +81,46 @@ export class ListReservaComponent {
     this.loadReservas();
   }
 
-  eliminarReserva(id: number): void {
-    if (confirm('¿Estás seguro de que deseas eliminar esta reserva?')) {
-      this.reservaService.delete(id).subscribe({
-        next: () => {
-          if (this.modoFiltrado()) {
-            this.buscarPorDni();
-          } else {
-            this.loadReservas();
-          }
-        },
-        error: (err) => {
-          console.error('Error eliminando reserva', err);
-          alert('No se pudo eliminar la reserva');
-        },
-      });
-    }
+  // === MODAL ELIMINAR ===
+  abrirModalEliminar(reserva: Reserva): void {
+    this.reservaSeleccionada.set(reserva);
+    this.showModalEliminar.set(true);
+  }
+
+  cerrarModalEliminar(): void {
+    this.showModalEliminar.set(false);
+    this.reservaSeleccionada.set(null);
+  }
+
+  confirmarEliminar(): void {
+    const reserva = this.reservaSeleccionada();
+    if (!reserva) return;
+
+    this.procesando.set(true);
+
+    this.reservaService.delete(reserva.id).subscribe({
+      next: () => {
+        this.procesando.set(false);
+        this.cerrarModalEliminar();
+        this.successMessage.set(`Reserva #${reserva.id} eliminada exitosamente`);
+
+        // Recargar lista
+        if (this.modoFiltrado()) {
+          this.buscarPorDni();
+        } else {
+          this.loadReservas();
+        }
+
+        // Ocultar mensaje después de 5 segundos
+        setTimeout(() => this.successMessage.set(null), 5000);
+      },
+      error: (err) => {
+        console.error('Error eliminando reserva', err);
+        this.procesando.set(false);
+        this.cerrarModalEliminar();
+        alert('No se pudo eliminar la reserva');
+      },
+    });
   }
 
   onDniInput(event: Event): void {

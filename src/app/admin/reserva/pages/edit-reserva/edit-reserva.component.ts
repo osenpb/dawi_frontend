@@ -2,12 +2,20 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { ReservaService } from '../../../../services/reserva.service';
 import { HotelService } from '../../../../services/hotel.service';
+import { DepartamentoService } from '../../../../services/departamento.service';
 
 import { HotelResponse } from '../../../../interfaces/hotel/hotel-response.interface';
 import { HabitacionResponse } from '../../../../interfaces/habitacion/habitacion-response.interface';
 import { Reserva, ReservaAdminUpdateDTO } from '../../../../interfaces/reserva/reserva.interface';
+import { DepartamentoResponse } from '../../../../interfaces/departamento/departamento-response.interface';
+
+interface HabitacionSeleccionada {
+  index: number;
+  habitacionId: number | null;
+}
 
 @Component({
   standalone: true,
@@ -20,28 +28,34 @@ export class EditReservaComponent implements OnInit {
   private fb = inject(FormBuilder);
   private reservaService = inject(ReservaService);
   private hotelService = inject(HotelService);
+  private departamentoService = inject(DepartamentoService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
   reservaId = signal<number | null>(null);
   reserva = signal<Reserva | null>(null);
+  departamentos = signal<DepartamentoResponse[]>([]);
   hoteles = signal<HotelResponse[]>([]);
+  hotelesFiltrados = signal<HotelResponse[]>([]);
   habitacionesDisponibles = signal<HabitacionResponse[]>([]);
-  habitacionesSeleccionadas = signal<number[]>([]);
+  habitacionesSeleccionadas = signal<HabitacionSeleccionada[]>([{ index: 1, habitacionId: null }]);
   loading = signal<boolean>(true);
   saving = signal<boolean>(false);
+  errorMessage = signal<string | null>(null);
+
+  private nextIndex = 2;
 
   reservaForm = this.fb.group({
-    // Cliente
-    clienteDni: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
+    departamentoId: [''],
+    hotelId: ['', Validators.required],
     clienteNombre: ['', [Validators.required, Validators.minLength(2)]],
     clienteApellido: ['', [Validators.required, Validators.minLength(2)]],
+    clienteDni: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
     clienteCorreo: ['', [Validators.required, Validators.email]],
-    // Reserva
+    clienteTelefono: [''],
     fechaInicio: ['', Validators.required],
     fechaFin: ['', Validators.required],
-    estado: ['', Validators.required],
-    hotelId: ['', Validators.required],
+    estado: ['CONFIRMADA', Validators.required],
   });
 
   estados = [
@@ -54,99 +68,164 @@ export class EditReservaComponent implements OnInit {
 
     if (id) {
       this.reservaId.set(Number(id));
-      this.loadHoteles();
-      this.loadReserva(Number(id));
+      this.loadInitialData(Number(id));
     } else {
       this.router.navigate(['/admin/reserva/list']);
     }
   }
 
-  loadHoteles(): void {
-    this.hotelService.getAll().subscribe({
-      next: (data: HotelResponse[]) => {
-        this.hoteles.set(data);
-      },
-      error: (err: any) => {
-        console.error('Error cargando hoteles:', err);
-      },
-    });
-  }
-
-  loadReserva(id: number): void {
+  loadInitialData(reservaId: number): void {
     this.loading.set(true);
-    this.reservaService.getById(id).subscribe({
-      next: (reserva) => {
+
+    // Cargar todo en paralelo
+    forkJoin({
+      departamentos: this.departamentoService.getAll(),
+      hoteles: this.hotelService.getAll(),
+      reserva: this.reservaService.getById(reservaId),
+    }).subscribe({
+      next: ({ departamentos, hoteles, reserva }) => {
+        console.log('Reserva cargada:', reserva);
+
+        this.departamentos.set(departamentos);
+        this.hoteles.set(hoteles);
+        this.hotelesFiltrados.set(hoteles);
         this.reserva.set(reserva);
 
-        // Cargar datos en el formulario
-        this.reservaForm.patchValue({
-          clienteDni: reserva.cliente.documento || '',
-          clienteNombre: reserva.cliente.nombre,
-          clienteApellido: reserva.cliente.apellido,
-          clienteCorreo: reserva.cliente.email,
-          fechaInicio: reserva.fechaInicio,
-          fechaFin: reserva.fechaFin,
-          estado: reserva.estado,
-          hotelId: String(reserva.hotel.id),
-        });
-
-        // Cargar habitaciones del hotel
-        this.onHotelChange(reserva.hotel.id);
-
-        // Marcar habitaciones seleccionadas usando habitacionId
-        const habitacionIds = reserva.detalles.map((d) => d.habitacionId);
-        this.habitacionesSeleccionadas.set(habitacionIds);
-
-        this.loading.set(false);
+        // Precargar formulario con datos de la reserva
+        this.precargarFormulario(reserva, hoteles);
       },
       error: (err) => {
-        console.error('Error cargando reserva:', err);
+        console.error('Error cargando datos:', err);
         alert('No se pudo cargar la reserva');
         this.router.navigate(['/admin/reserva/list']);
       },
     });
   }
 
-  onHotelChange(hotelId: number | string): void {
-    const id = typeof hotelId === 'string' ? Number(hotelId) : hotelId;
+  precargarFormulario(reserva: Reserva, hoteles: HotelResponse[]): void {
+    // Buscar el departamento del hotel
+    const departamentoId = reserva.hotel?.departamento?.id;
 
-    if (!id) {
-      this.habitacionesDisponibles.set([]);
-      return;
+    // Filtrar hoteles por departamento
+    if (departamentoId) {
+      const filtrados = hoteles.filter((h) => h.departamento?.id === departamentoId);
+      this.hotelesFiltrados.set(filtrados);
     }
 
-    this.hotelService.getById(id).subscribe({
-      next: (hotel) => {
-        this.habitacionesDisponibles.set(hotel.habitaciones || []);
-      },
-      error: (err) => {
-        console.error('Error cargando habitaciones:', err);
-        this.habitacionesDisponibles.set([]);
-      },
+    // Precargar valores del formulario
+    this.reservaForm.patchValue({
+      departamentoId: departamentoId ? String(departamentoId) : '',
+      hotelId: reserva.hotel?.id ? String(reserva.hotel.id) : '',
+      clienteNombre: reserva.cliente?.nombre || '',
+      clienteApellido: reserva.cliente?.apellido || '',
+      clienteDni: reserva.cliente?.documento || '',
+      clienteCorreo: reserva.cliente?.email || '',
+      clienteTelefono: reserva.cliente?.telefono || '',
+      fechaInicio: reserva.fechaInicio || '',
+      fechaFin: reserva.fechaFin || '',
+      estado: reserva.estado || 'CONFIRMADA',
     });
+
+    // Cargar habitaciones del hotel
+    if (reserva.hotel?.id) {
+      this.hotelService.getById(reserva.hotel.id).subscribe({
+        next: (hotelCompleto) => {
+          this.habitacionesDisponibles.set(hotelCompleto.habitaciones || []);
+
+          // Precargar habitaciones seleccionadas desde los detalles
+          if (reserva.detalles && reserva.detalles.length > 0) {
+            const seleccionadas: HabitacionSeleccionada[] = reserva.detalles.map((det, idx) => ({
+              index: idx + 1,
+              habitacionId: det.habitacionId,
+            }));
+            this.habitacionesSeleccionadas.set(seleccionadas);
+            this.nextIndex = seleccionadas.length + 1;
+          }
+
+          this.loading.set(false);
+        },
+        error: (err) => {
+          console.error('Error cargando habitaciones:', err);
+          this.loading.set(false);
+        },
+      });
+    } else {
+      this.loading.set(false);
+    }
   }
 
-  onHotelSelectChange(event: Event): void {
+  onDepartamentoChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const depId = Number(select.value);
+
+    if (depId) {
+      const filtrados = this.hoteles().filter((h) => h.departamento?.id === depId);
+      this.hotelesFiltrados.set(filtrados);
+    } else {
+      this.hotelesFiltrados.set(this.hoteles());
+    }
+
+    this.reservaForm.patchValue({ hotelId: '' });
+    this.habitacionesDisponibles.set([]);
+    this.habitacionesSeleccionadas.set([{ index: 1, habitacionId: null }]);
+    this.nextIndex = 2;
+  }
+
+  onHotelChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
     const hotelId = Number(select.value);
 
-    // Limpiar habitaciones seleccionadas al cambiar de hotel
-    this.habitacionesSeleccionadas.set([]);
-    this.onHotelChange(hotelId);
-  }
-
-  toggleHabitacion(habitacionId: number): void {
-    const seleccionadas = this.habitacionesSeleccionadas();
-
-    if (seleccionadas.includes(habitacionId)) {
-      this.habitacionesSeleccionadas.set(seleccionadas.filter((id) => id !== habitacionId));
+    if (hotelId) {
+      this.hotelService.getById(hotelId).subscribe({
+        next: (hotel) => {
+          this.habitacionesDisponibles.set(hotel.habitaciones || []);
+        },
+        error: (err) => {
+          console.error('Error cargando habitaciones:', err);
+          this.habitacionesDisponibles.set([]);
+        },
+      });
     } else {
-      this.habitacionesSeleccionadas.set([...seleccionadas, habitacionId]);
+      this.habitacionesDisponibles.set([]);
     }
+
+    this.habitacionesSeleccionadas.set([{ index: 1, habitacionId: null }]);
+    this.nextIndex = 2;
   }
 
-  isHabitacionSeleccionada(habitacionId: number): boolean {
-    return this.habitacionesSeleccionadas().includes(habitacionId);
+  getHabitacionesParaSelect(currentIndex: number): HabitacionResponse[] {
+    const habitaciones = this.habitacionesDisponibles();
+    const seleccionadas = this.habitacionesSeleccionadas();
+    const seleccionadasIds = seleccionadas
+      .filter((s) => s.index !== currentIndex && s.habitacionId !== null)
+      .map((s) => s.habitacionId);
+
+    return habitaciones.filter((h) => !seleccionadasIds.includes(h.id!));
+  }
+
+  onHabitacionChange(index: number, event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const habitacionId = select.value ? Number(select.value) : null;
+
+    const seleccionadas = this.habitacionesSeleccionadas();
+    this.habitacionesSeleccionadas.set(
+      seleccionadas.map((s) => (s.index === index ? { ...s, habitacionId } : s))
+    );
+  }
+
+  agregarHabitacion(): void {
+    const seleccionadas = this.habitacionesSeleccionadas();
+    this.habitacionesSeleccionadas.set([
+      ...seleccionadas,
+      { index: this.nextIndex++, habitacionId: null },
+    ]);
+  }
+
+  quitarHabitacion(index: number): void {
+    const seleccionadas = this.habitacionesSeleccionadas();
+    if (seleccionadas.length > 1) {
+      this.habitacionesSeleccionadas.set(seleccionadas.filter((s) => s.index !== index));
+    }
   }
 
   calcularTotal(): number {
@@ -166,8 +245,8 @@ export class EditReservaComponent implements OnInit {
     if (noches <= 0) return 0;
 
     const totalPorNoche = habitaciones
-      .filter((h) => seleccionadas.includes(h.id!))
-      .reduce((sum, h) => sum + h.precio, 0);
+      .filter((h) => seleccionadas.some((s) => s.habitacionId === h.id))
+      .reduce((sum, h) => sum + (h.precio || 0), 0);
 
     return totalPorNoche * noches;
   }
@@ -175,11 +254,16 @@ export class EditReservaComponent implements OnInit {
   onSubmit(): void {
     if (this.reservaForm.invalid) {
       this.reservaForm.markAllAsTouched();
+      this.errorMessage.set('Complete todos los campos correctamente');
       return;
     }
 
-    if (this.habitacionesSeleccionadas().length === 0) {
-      alert('Debe seleccionar al menos una habitación');
+    const habitacionesIds = this.habitacionesSeleccionadas()
+      .filter((s) => s.habitacionId !== null)
+      .map((s) => s.habitacionId as number);
+
+    if (habitacionesIds.length === 0) {
+      this.errorMessage.set('Debe seleccionar al menos una habitación');
       return;
     }
 
@@ -193,7 +277,7 @@ export class EditReservaComponent implements OnInit {
     const fechaFin = new Date(formValue.fechaFin!);
 
     if (fechaFin <= fechaInicio) {
-      alert('La fecha de salida debe ser posterior a la fecha de entrada');
+      this.errorMessage.set('La fecha de salida debe ser posterior a la fecha de entrada');
       return;
     }
 
@@ -207,20 +291,27 @@ export class EditReservaComponent implements OnInit {
         nombre: formValue.clienteNombre!,
         apellido: formValue.clienteApellido!,
         email: formValue.clienteCorreo!,
+        telefono: formValue.clienteTelefono || undefined,
       },
-      habitaciones: this.habitacionesSeleccionadas(),
+      habitaciones: habitacionesIds,
     };
 
+    console.log('Enviando actualización:', reservaData);
+
     this.saving.set(true);
+    this.errorMessage.set(null);
 
     this.reservaService.update(id, reservaData).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('Respuesta:', response);
         alert('Reserva actualizada exitosamente');
         this.router.navigate(['/admin/reserva/list']);
       },
       error: (err) => {
         console.error('Error actualizando reserva:', err);
-        alert('Error al actualizar la reserva');
+        this.errorMessage.set(
+          'Error al actualizar la reserva: ' + (err.error?.message || err.message)
+        );
         this.saving.set(false);
       },
     });
@@ -231,11 +322,6 @@ export class EditReservaComponent implements OnInit {
   }
 
   // Getters para validaciones
-  get clienteDniInvalid(): boolean {
-    const control = this.reservaForm.get('clienteDni');
-    return !!(control?.invalid && control?.touched);
-  }
-
   get clienteNombreInvalid(): boolean {
     const control = this.reservaForm.get('clienteNombre');
     return !!(control?.invalid && control?.touched);
@@ -246,18 +332,13 @@ export class EditReservaComponent implements OnInit {
     return !!(control?.invalid && control?.touched);
   }
 
+  get clienteDniInvalid(): boolean {
+    const control = this.reservaForm.get('clienteDni');
+    return !!(control?.invalid && control?.touched);
+  }
+
   get clienteCorreoInvalid(): boolean {
     const control = this.reservaForm.get('clienteCorreo');
-    return !!(control?.invalid && control?.touched);
-  }
-
-  get fechaInicioInvalid(): boolean {
-    const control = this.reservaForm.get('fechaInicio');
-    return !!(control?.invalid && control?.touched);
-  }
-
-  get fechaFinInvalid(): boolean {
-    const control = this.reservaForm.get('fechaFin');
     return !!(control?.invalid && control?.touched);
   }
 }
