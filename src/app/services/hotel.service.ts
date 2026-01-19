@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { HotelResponse, HotelRequest } from '../interfaces';
-import { environment } from '../../environments/environments.prod';
+import { environment } from '../../environments/environments';
 
 const baseUrl = `${environment.apiUrl}/admin`;
 

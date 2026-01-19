@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import { TipoHabitacionResponse } from '../interfaces';
-import { environment } from '../../environments/environments.prod';
+import { environment } from '../../environments/environments';
 
 
 const baseUrl = `${environment.apiUrl}/public/habitaciones`;

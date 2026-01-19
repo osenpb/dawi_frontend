@@ -12,7 +12,7 @@ import {
   ReservaListResponse,
   MisReservasResponse,
 } from '../../interfaces';
-import { environment } from '../../../environments/environments.prod';
+import { environment } from '../../../environments/environments';
 
 const baseUrl = `${environment.apiUrl}/public`;
 
