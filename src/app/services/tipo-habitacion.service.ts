@@ -2,8 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import { TipoHabitacionResponse } from '../interfaces';
+import { environment } from '../../environments/environments.prod';
 
-const baseUrl = 'http://localhost:8080/api/public/habitaciones';
+
+const baseUrl = `${environment.apiUrl}/public/habitaciones`;
 
 @Injectable({
   providedIn: 'root',

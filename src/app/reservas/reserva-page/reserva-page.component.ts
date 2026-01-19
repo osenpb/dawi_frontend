@@ -10,9 +10,9 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ReservaPublicService } from '../../services/reserva-public.service';
-import { HotelDetalleResponse, HabitacionResponse, ReservaRequest } from '../../../interfaces';
-import { AuthService } from '../../../auth/services/auth.service';
+import { ReservaPublicService } from '../../home/services/reserva-public.service';
+import { HotelDetalleResponse, HabitacionResponse, ReservaRequest } from '../../interfaces';
+import { AuthService } from '../../auth/services/auth.service';
 
 interface HabitacionSeleccionada {
   index: number;

@@ -1,0 +1,190 @@
+<div class="min-h-screen bg-slate-50/50 py-12">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+      <div>
+        <span class="text-amber-600 font-bold tracking-widest text-xs uppercase">Gestionar Estadías</span>
+        <h1 class="text-4xl font-bold text-slate-900 mt-1">Mis <span class="text-amber-500 italic font-serif">Reservas</span></h1>
+      </div>
+      <p class="text-slate-500 text-sm">Organiza tus próximos encuentros con el confort.</p>
+    </div>
+
+    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8 mb-10">
+      <div class="flex items-center gap-2 mb-6">
+        <div class="w-2 h-2 bg-amber-500 rounded-full"></div>
+        <h3 class="text-xs font-black text-slate-400 uppercase tracking-tighter">Buscador de Itinerarios</h3>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="space-y-2">
+          <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Desde</label>
+          <input type="date" [value]="filtroFechaInicio()" (change)="onFiltroFechaInicioChange($event)"
+            class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-amber-500/20 outline-none transition-all">
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Hasta</label>
+          <input type="date" [value]="filtroFechaFin()" (change)="onFiltroFechaFinChange($event)"
+            class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-amber-500/20 outline-none transition-all">
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Estado</label>
+          <select [value]="filtroEstado()" (change)="onFiltroEstadoChange($event)"
+            class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-amber-500/20 outline-none appearance-none cursor-pointer">
+            <option value="TODOS">Todos los estados</option>
+            <option value="CONFIRMADA">Confirmadas</option>
+            <option value="PENDIENTE">Pendientes</option>
+            <option value="CANCELADA">Canceladas</option>
+          </select>
+        </div>
+
+        <div class="flex items-end gap-2">
+          <button (click)="buscarConFiltros()"
+            class="flex-1 bg-slate-900 text-white text-sm font-bold py-3 rounded-xl hover:bg-slate-800 transition-all active:scale-95 shadow-lg shadow-slate-200">
+            Filtrar
+          </button>
+          <button (click)="limpiarFiltros()"
+            class="p-3 bg-slate-100 text-slate-500 rounded-xl hover:bg-slate-200 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="py-20 text-center">
+        <div class="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin mx-auto mb-4"></div>
+        <p class="text-slate-400 font-medium animate-pulse">Sincronizando tus viajes...</p>
+      </div>
+    }
+
+    @if (!loading()) {
+      <div class="space-y-6">
+        @for (reserva of reservasFiltradas(); track reserva.id) {
+          <div class="group relative bg-white rounded-[2rem] border border-slate-100 overflow-hidden hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500">
+
+            <div class="absolute left-0 top-0 bottom-0 w-2"
+                 [ngClass]="{'bg-emerald-500': reserva.estado === 'CONFIRMADA', 'bg-amber-500': reserva.estado === 'PENDIENTE', 'bg-slate-300': reserva.estado === 'CANCELADA'}">
+            </div>
+
+            <div class="p-8">
+              <div class="flex flex-col lg:flex-row gap-8 items-center">
+
+                <div class="flex flex-col items-center lg:items-start min-w-[120px]">
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Estadía</span>
+                  <span class="text-2xl font-bold text-slate-900 leading-none mb-2">#{{ reserva.id }}</span>
+                  <div [ngClass]="getEstadoClass(reserva.estado)" class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter">
+                    {{ reserva.estado }}
+                  </div>
+                </div>
+
+                <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full text-center lg:text-left">
+                  <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Hotel & Destino</p>
+                    <p class="font-bold text-slate-800">{{ reserva.hotel.nombre }}</p>
+                    <p class="text-xs text-slate-500">{{ formatDateLong(reserva.fechaReserva) }}</p>
+                  </div>
+
+                  <div class="relative px-4">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Check-in / Out</p>
+                    <p class="font-bold text-slate-800 text-sm">
+                      {{ formatDate(reserva.fechaInicio) }} <span class="text-amber-500">→</span> {{ formatDate(reserva.fechaFin) }}
+                    </p>
+                    <p class="text-xs font-medium text-amber-600 bg-amber-50 inline-block px-2 py-0.5 rounded mt-1">
+                      {{ calcularNoches(reserva.fechaInicio, reserva.fechaFin) }} Noches
+                    </p>
+                  </div>
+
+                  <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Inversión Total</p>
+                    <p class="text-2xl font-black text-slate-900 tracking-tight">{{ formatCurrency(reserva.total) }}</p>
+                  </div>
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-2">
+                  @if (reserva.estado === 'PENDIENTE') {
+                    <a [routerLink]="['/home/reserva', reserva.id, 'pago']"
+                       class="px-6 py-3 bg-emerald-600 text-white text-xs font-bold rounded-xl hover:bg-emerald-700 transition-all flex items-center gap-2">
+                       PAGAR AHORA
+                    </a>
+                  }
+
+                  <button (click)="abrirModalEditar(reserva)"
+                    class="p-3 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all"
+                    title="Editar fechas">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                  </button>
+
+                  <button (click)="abrirModalEliminar(reserva)"
+                    class="p-3 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                    title="Cancelar reserva">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (!loading() && reservas().length === 0) {
+      <div class="bg-white rounded-[2.5rem] p-16 text-center border border-slate-100 border-dashed">
+        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
+           <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+        </div>
+        <h3 class="text-2xl font-bold text-slate-900 mb-2">Tu bitácora está vacía</h3>
+        <p class="text-slate-500 mb-8 max-w-xs mx-auto">Comienza tu historia en uno de nuestros destinos exclusivos.</p>
+        <a [routerLink]="['/home/departamentos']"
+           class="inline-block px-8 py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-slate-800 transition-all">
+          Descubrir Hoteles
+        </a>
+      </div>
+    }
+
+  </div>
+</div>
+
+@if (showModalEditar()) {
+  <div class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-in fade-in duration-300">
+    <div class="bg-white rounded-[2.5rem] shadow-2xl max-w-md w-full p-10 overflow-hidden relative">
+      <div class="absolute top-0 right-0 p-6">
+        <button (click)="cerrarModalEditar()" class="text-slate-300 hover:text-slate-900 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      <div class="mb-8">
+        <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest">Ajustar Itinerario</span>
+        <h3 class="text-2xl font-bold text-slate-900">Reserva #{{ reservaSeleccionada()?.id }}</h3>
+      </div>
+
+      <div class="space-y-6">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-slate-400 uppercase">Nueva Entrada</label>
+            <input type="date" [value]="editFechaInicio()" (change)="onEditFechaInicioChange($event)"
+              class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl text-xs focus:ring-2 focus:ring-amber-500/20 outline-none">
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-bold text-slate-400 uppercase">Nueva Salida</label>
+            <input type="date" [value]="editFechaFin()" (change)="onEditFechaFinChange($event)"
+              class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl text-xs focus:ring-2 focus:ring-amber-500/20 outline-none">
+          </div>
+        </div>
+
+        <div class="p-4 bg-amber-50 rounded-2xl flex items-start gap-3">
+          <div class="mt-1 text-amber-500"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg></div>
+          <p class="text-[10px] text-amber-700 leading-tight">Recuerda que los cambios están sujetos a disponibilidad del hotel y pueden aplicar ajustes en la tarifa.</p>
+        </div>
+
+        <button (click)="confirmarEditar()" [disabled]="procesando()"
+          class="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-slate-800 transition-all disabled:opacity-50">
+          {{ procesando() ? 'Sincronizando...' : 'Confirmar Cambios' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

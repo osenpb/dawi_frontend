@@ -1,212 +1,123 @@
-<div class="min-h-screen bg-slate-900">
+<div class="min-h-screen bg-slate-950 text-slate-200 selection:bg-amber-500/30">
 
-  <!-- Hero Carousel Section -->
-  <section class="relative h-[500px] md:h-[550px] overflow-hidden">
-    <!-- Slide Images -->
-    <div class="absolute inset-0">
-      @switch (currentSlide()) {
-        @case (0) {
-          <img 
-            src="https://images.unsplash.com/photo-1526392060635-9d6019884377?w=1600" 
-            alt="Machu Picchu" 
-            class="w-full h-full object-cover"
-          />
-        }
-        @case (1) {
-          <img 
-            src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=1600" 
-            alt="Hotel de Lujo" 
-            class="w-full h-full object-cover"
-          />
-        }
-        @case (2) {
-          <img 
-            src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1600" 
-            alt="Suite Premium" 
-            class="w-full h-full object-cover"
-          />
+  <section class="relative h-[600px] w-full overflow-hidden">
+    <div class="absolute inset-0 z-0">
+      @for (slideImg of slides; track $index) {
+        @if (currentSlide() === $index) {
+          <div class="absolute inset-0 animate-fade-in">
+            <img [src]="slideImg.url"
+                 [alt]="slideImg.title"
+                 class="h-full w-full object-cover animate-slow-zoom" />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+          </div>
         }
       }
     </div>
-    
-    <!-- Overlay gradient -->
-    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/30 to-slate-900/50"></div>
-    
-    <!-- Navigation Arrows -->
-    <button 
-      (click)="prevSlide()" 
-      class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center text-white/70 hover:text-white transition-colors">
-      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-      </svg>
-    </button>
-    <button 
-      (click)="nextSlide()" 
-      class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center text-white/70 hover:text-white transition-colors">
-      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-      </svg>
-    </button>
-    
-    <!-- Slide Content -->
-    <div class="absolute inset-0 flex items-center justify-center">
-      <div class="text-center">
-        <h1 class="text-4xl md:text-5xl font-serif text-white tracking-wide">
-          @switch (currentSlide()) {
-            @case (0) { Experiencia de Lujo }
-            @case (1) { Confort Premium }
-            @case (2) { Momentos Inolvidables }
-          }
-        </h1>
-      </div>
+
+    <div class="absolute inset-x-4 top-1/2 z-20 flex -translate-y-1/2 justify-between px-4 md:inset-x-12">
+      <button (click)="prevSlide()" class="group flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-black/20 backdrop-blur-md transition-all hover:bg-amber-500 hover:border-amber-500">
+        <svg class="h-6 w-6 text-white transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+      <button (click)="nextSlide()" class="group flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-black/20 backdrop-blur-md transition-all hover:bg-amber-500 hover:border-amber-500">
+        <svg class="h-6 w-6 text-white transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+      </button>
     </div>
-    
-    <!-- Slide Indicators -->
-    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+
+    <div class="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center">
+      <span class="mb-4 inline-block rounded-full bg-amber-500/20 px-4 py-1 text-xs font-bold uppercase tracking-[0.3em] text-amber-400 backdrop-blur-sm">
+        Bienvenidos a Ayni
+      </span>
+      <h1 class="max-w-4xl text-5xl font-bold tracking-tight text-white md:text-7xl">
+        @switch (currentSlide()) {
+          @case (0) { Trabajamos con hoteles de todo el <span class="text-amber-500 italic font-serif">Perú</span> }
+          @case (1) { Confort que abraza tus <span class="text-amber-500 italic font-serif">Sentidos</span> }
+          @case (2) { Crea recuerdos en el <span class="text-amber-500 italic font-serif">Paraíso</span> }
+        }
+      </h1>
+      <p class="mt-6 max-w-xl text-lg text-slate-300">
+        Reserva experiencias exclusivas en los destinos más emblemáticos del Perú con un servicio que entiende tus necesidades.
+      </p>
+    </div>
+
+    <div class="absolute bottom-10 left-1/2 z-20 flex -translate-x-1/2 gap-3">
       @for (slide of [0, 1, 2]; track slide) {
-        <button 
-          (click)="goToSlide(slide)"
-          class="w-8 h-1 rounded-full transition-colors"
-          [class.bg-amber-400]="currentSlide() === slide"
-          [class.bg-white/40]="currentSlide() !== slide">
+        <button (click)="goToSlide(slide)"
+                [class]="currentSlide() === slide ? 'w-10 bg-amber-500' : 'w-2 bg-white/30 hover:bg-white/50'"
+                class="h-2 rounded-full transition-all duration-500">
         </button>
       }
     </div>
   </section>
 
-  <!-- Misión, Visión, Valores -->
-  <section class="py-16 px-4">
-    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-      
-      <!-- Misión -->
-      <div class="bg-slate-800/50 border border-amber-400/30 rounded-2xl p-8 text-center hover:border-amber-400/60 transition-colors">
-        <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-          <svg class="w-12 h-12 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-          </svg>
-        </div>
-        <h3 class="text-xl font-serif text-amber-400 mb-4 underline underline-offset-4">Misión</h3>
-        <p class="text-gray-300 text-sm leading-relaxed">
-          Brindar experiencias de hospitalidad excepcionales que superen las expectativas de nuestros huéspedes, ofreciendo comodidad, elegancia y un servicio personalizado de clase mundial.
-        </p>
-      </div>
+  <section class="relative -mt-12 z-30 px-6">
+    <div class="mx-auto max-w-7xl">
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
 
-      <!-- Visión -->
-      <div class="bg-slate-800/50 border border-amber-400/30 rounded-2xl p-8 text-center hover:border-amber-400/60 transition-colors">
-        <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-          <svg class="w-12 h-12 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-          </svg>
+        <div class="group overflow-hidden rounded-3xl border border-white/5 bg-slate-900/80 p-8 backdrop-blur-xl transition-all hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10">
+          <div class="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-500 transition-transform group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-slate-950">
+            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          </div>
+          <h3 class="mb-3 text-xl font-bold text-white">Nuestra Misión</h3>
+          <p class="text-sm leading-relaxed text-slate-400 group-hover:text-slate-300">
+            Brindar experiencias de hospitalidad que superen expectativas, fusionando la elegancia moderna con el alma del servicio peruano.
+          </p>
         </div>
-        <h3 class="text-xl font-serif text-amber-400 mb-4 underline underline-offset-4">Visión</h3>
-        <p class="text-gray-300 text-sm leading-relaxed">
-          Ser reconocidos como la plataforma de reservas hoteleras líder en la región, estableciendo nuevos estándares de excelencia en la industria de la hospitalidad y el turismo.
-        </p>
-      </div>
 
-      <!-- Valores -->
-      <div class="bg-slate-800/50 border border-amber-400/30 rounded-2xl p-8 text-center hover:border-amber-400/60 transition-colors">
-        <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-          <svg class="w-12 h-12 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8l-2 6h4l-2 6 6-8h-4l2-6-6 8h4z"/>
-          </svg>
+        <div class="group overflow-hidden rounded-3xl border border-white/5 bg-slate-900/80 p-8 backdrop-blur-xl transition-all hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10">
+          <div class="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-500 transition-transform group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-slate-950">
+            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </div>
+          <h3 class="mb-3 text-xl font-bold text-white">Nuestra Visión</h3>
+          <p class="text-sm leading-relaxed text-slate-400 group-hover:text-slate-300">
+            Ser el referente regional de turismo inteligente, elevando el estándar de cada reserva a una conexión real con el destino.
+          </p>
         </div>
-        <h3 class="text-xl font-serif text-amber-400 mb-4 underline underline-offset-4">Valores</h3>
-        <p class="text-gray-300 text-sm leading-relaxed">
-          Excelencia en el servicio, integridad en cada interacción, innovación constante y compromiso inquebrantable con la satisfacción y bienestar de nuestros clientes.
-        </p>
-      </div>
 
-    </div>
-  </section>
+        <div class="group overflow-hidden rounded-3xl border border-white/5 bg-slate-900/80 p-8 backdrop-blur-xl transition-all hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10">
+          <div class="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-500 transition-transform group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-slate-950">
+            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <h3 class="mb-3 text-xl font-bold text-white">Valores Ayni</h3>
+          <p class="text-sm leading-relaxed text-slate-400 group-hover:text-slate-300">
+            Excelencia, integridad y una pasión inquebrantable por el detalle. Creemos en el intercambio justo y la calidez humana.
+          </p>
+        </div>
 
-  <!-- Galería de Experiencias -->
-  <section class="py-12 px-4">
-    <div class="max-w-6xl mx-auto">
-      <h2 class="text-3xl md:text-4xl font-serif text-amber-400 text-center mb-12 italic">
-        Galería de Experiencias
-      </h2>
-      
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- Imagen 1 -->
-        <div class="relative group overflow-hidden rounded-xl aspect-[4/3]">
-          <img 
-            src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600" 
-            alt="Piscina familiar"
-            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-          />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-        </div>
-        
-        <!-- Imagen 2 -->
-        <div class="relative group overflow-hidden rounded-xl aspect-[4/3]">
-          <img 
-            src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600" 
-            alt="Tour cultural"
-            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-          />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-        </div>
-        
-        <!-- Imagen 3 -->
-        <div class="relative group overflow-hidden rounded-xl aspect-[4/3]">
-          <img 
-            src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600" 
-            alt="Resort con piscina"
-            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-          />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-        </div>
-        
-        <!-- Imagen 4 -->
-        <div class="relative group overflow-hidden rounded-xl aspect-[4/3]">
-          <img 
-            src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600" 
-            alt="Patio colonial"
-            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-          />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-        </div>
-        
-        <!-- Imagen 5 -->
-        <div class="relative group overflow-hidden rounded-xl aspect-[4/3]">
-          <img 
-            src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600" 
-            alt="Desayuno gourmet"
-            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-          />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-        </div>
-        
-        <!-- Imagen 6 -->
-        <div class="relative group overflow-hidden rounded-xl aspect-[4/3]">
-          <img 
-            src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600" 
-            alt="Hotel nocturno"
-            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-          />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-        </div>
       </div>
     </div>
   </section>
 
-  <!-- CTA Reservar -->
-  <section class="py-16 px-4">
-    <div class="max-w-6xl mx-auto text-center">
-      <a 
-        routerLink="/home/departamentos"
-        class="inline-flex items-center gap-3 px-10 py-4 bg-slate-800 border border-amber-400/50 text-white font-medium rounded-full hover:bg-slate-700 hover:border-amber-400 transition-all group">
-        <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-        </svg>
-        <span class="text-lg">RESERVAR AHORA</span>
-      </a>
-      
-      <p class="mt-6 text-amber-400 text-sm">
-        ⭐ Reserva con confianza • Cancelación flexible • Mejor precio garantizado
+  <section class="py-24">
+    <div class="mx-auto max-w-7xl px-6">
+      <div class="mb-12 flex flex-col items-center justify-between gap-4 md:flex-row md:items-end">
+        <div>
+          <h2 class="text-3xl font-bold text-white md:text-4xl">Experiencias Ayni</h2>
+          <p class="mt-2 text-slate-400">Momentos capturados por nuestros viajeros alrededor del Perú.</p>
+        </div>
+        <div class="h-1 w-24 bg-amber-500 rounded-full"></div>
+      </div>
+      <home-experiences-galery />
+    </div>
+  </section>
+
+  <section class="pb-24 px-6">
+    <div class="mx-auto max-w-5xl rounded-[3rem] bg-gradient-to-br from-amber-500 to-orange-600 p-12 text-center md:p-20 shadow-2xl shadow-amber-500/20">
+      <h2 class="text-3xl font-bold text-slate-950 md:text-5xl">¿Listo para tu próxima aventura?</h2>
+      <p class="mx-auto mt-6 max-w-xl text-lg text-slate-900 font-medium">
+        Únete a miles de viajeros que ya están descubriendo el Perú con Ayni. Precios exclusivos y soporte 24/7.
       </p>
+      <div class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+        <a routerLink="/home/departamentos"
+           class="group flex items-center gap-3 rounded-full bg-slate-950 px-10 py-4 text-lg font-bold text-white transition-all hover:scale-105 hover:bg-slate-900 active:scale-95">
+          RESERVAR AHORA
+          <svg class="h-5 w-5 text-amber-500 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+        </a>
+      </div>
+      <div class="mt-8 flex flex-wrap justify-center gap-6 text-sm font-bold text-slate-900/70">
+        <span class="flex items-center gap-2">✓ Cancelación Flexible</span>
+        <span class="flex items-center gap-2">✓ Sin cargos ocultos</span>
+        <span class="flex items-center gap-2">✓ Pago Seguro</span>
+      </div>
     </div>
   </section>
 

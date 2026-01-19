@@ -3,11 +3,20 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ReservaPublicService } from '../../services/reserva-public.service';
 import { DepartamentoResponse } from '../../../interfaces';
+import { ExperiencesGalery } from "../../components/experiences-galery/experiences-galery";
+
+interface Slide {
+  url: string;
+  title: string;
+  subtitle: string;
+  highlight: string;
+}
+
 
 @Component({
   standalone: true,
   selector: 'app-home-page',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ExperiencesGalery],
   templateUrl: './home-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -16,11 +25,34 @@ export class HomePageComponent implements OnInit, OnDestroy {
 
   departamentosDestacados = signal<DepartamentoResponse[]>([]);
   loading = signal<boolean>(true);
-  
+
   // Carousel
   currentSlide = signal<number>(0);
   private slideInterval: any;
   private readonly totalSlides = 3;
+
+  readonly slides: Slide[] = [
+    {
+      url: 'https://images.unsplash.com/photo-1526392060635-9d6019884377?w=1600&q=80',
+      title: 'El lujo de la',
+      highlight: 'Reciprocidad',
+      subtitle: 'Bienvenidos a Ayni'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=1600&q=80',
+      title: 'Confort que abraza tus',
+      highlight: 'Sentidos',
+      subtitle: 'Experiencias Premium'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1600&q=80',
+      title: 'Crea recuerdos en el',
+      highlight: 'Paraíso',
+      subtitle: 'Destinos Inolvidables'
+    }
+  ];
+
+
 
   ngOnInit(): void {
     this.loadDepartamentosDestacados();

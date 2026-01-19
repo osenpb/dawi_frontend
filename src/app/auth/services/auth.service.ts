@@ -3,10 +3,11 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
 import { LoginRequest, RegisterRequest, AuthResponse } from '../interfaces/auth.interface';
 import { UserResponse } from '../interfaces/userResponse.interface';
+import { environment } from '../../../environments/environments.prod';
 
 type AuthStatus = 'checking' | 'authenticated' | 'not-authenticated';
 
-const baseUrl = 'http://localhost:8080/api/v1';
+const baseUrl = `${environment.apiUrl}/auth`;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -38,7 +39,7 @@ export class AuthService {
       const userStr = localStorage.getItem('user');
       if (userStr) {
         const user = JSON.parse(userStr);
-        console.log('👤 Usuario cargado desde localStorage:', user.username);
+
         return user;
       }
     } catch (e) {
@@ -62,7 +63,7 @@ export class AuthService {
    */
   register(registerRequest: RegisterRequest): Observable<boolean> {
     return this.http
-      .post<AuthResponse>(`${baseUrl}/auth/register`, {
+      .post<AuthResponse>(`${baseUrl}/register`, {
         username: registerRequest.username,
         email: registerRequest.email,
         telefono: registerRequest.telefono,
@@ -81,9 +82,9 @@ export class AuthService {
    * Login del usuario
    */
   login(loginRequest: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${baseUrl}/auth/login`, loginRequest).pipe(
+    return this.http.post<AuthResponse>(`${baseUrl}/login`, loginRequest).pipe(
       tap((resp) => {
-        console.log('✅ Login exitoso:', resp.user.username);
+
         this.handleLoginSuccess(resp);
       }),
       catchError((error) => this.handleAuthError(error))

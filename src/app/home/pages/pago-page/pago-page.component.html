@@ -29,7 +29,7 @@
       <!-- Mensaje de error -->
       @if (errorMessage()) {
         <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-center gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <p class="text-red-700">{{ errorMessage() }}</p>
@@ -52,7 +52,7 @@
                   <span class="text-gray-700">Tarjeta de Crédito/Débito</span>
                 </label>
               </div>
-              
+
               <!-- Iconos de tarjetas -->
               <div class="flex gap-3 mt-4">
                 <div class="w-12 h-8 bg-indigo-600 rounded flex items-center justify-center text-white text-xs font-bold">VISA</div>
@@ -68,13 +68,13 @@
               <h2 class="text-lg font-medium text-gray-800">Datos de la Tarjeta</h2>
             </div>
             <div class="p-4 space-y-4">
-              
+
               <!-- Número de tarjeta -->
               <div>
                 <label class="block text-sm text-gray-600 mb-1">Número de Tarjeta</label>
                 <div class="relative">
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     [formControl]="pagoForm.controls.numeroTarjeta"
                     (input)="formatCardNumber($event)"
                     maxlength="16"
@@ -95,8 +95,8 @@
               <!-- Nombre del titular -->
               <div>
                 <label class="block text-sm text-gray-600 mb-1">Nombre del Titular</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   [formControl]="pagoForm.controls.nombreTitular"
                   placeholder="Como aparece en la tarjeta"
                   class="w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 uppercase"
@@ -112,8 +112,8 @@
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm text-gray-600 mb-1">Fecha de Expiración</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     [formControl]="pagoForm.controls.fechaExpiracion"
                     (input)="formatExpiration($event)"
                     maxlength="5"
@@ -128,8 +128,8 @@
                 </div>
                 <div>
                   <label class="block text-sm text-gray-600 mb-1">CVV</label>
-                  <input 
-                    type="password" 
+                  <input
+                    type="password"
                     [formControl]="pagoForm.controls.cvv"
                     maxlength="4"
                     placeholder="***"
@@ -166,7 +166,7 @@
 
               <!-- Hotel -->
               <div class="flex items-start gap-3">
-                <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0">
                   <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                   </svg>
@@ -222,7 +222,7 @@
               </div>
 
               <!-- Botón Pagar -->
-              <button 
+              <button
                 type="button"
                 (click)="procesarPago()"
                 [disabled]="procesando()"

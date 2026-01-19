@@ -12,8 +12,9 @@ import {
   ReservaListResponse,
   MisReservasResponse,
 } from '../../interfaces';
+import { environment } from '../../../environments/environments.prod';
 
-const baseUrl = 'http://localhost:8080/api/public';
+const baseUrl = `${environment.apiUrl}/public`;
 
 @Injectable({
   providedIn: 'root',
@@ -102,18 +103,18 @@ export class ReservaPublicService {
   getMisReservas(fechaInicio?: string, fechaFin?: string): Observable<MisReservasResponse> {
     let url = `${baseUrl}/reserva/mis-reservas`;
     const params: string[] = [];
-    
+
     if (fechaInicio) {
       params.push(`fechaInicio=${fechaInicio}`);
     }
     if (fechaFin) {
       params.push(`fechaFin=${fechaFin}`);
     }
-    
+
     if (params.length > 0) {
       url += '?' + params.join('&');
     }
-    
+
     return this.http.get<MisReservasResponse>(url).pipe(
       catchError((error: any) => {
         console.error('Error al buscar reservas:', error);

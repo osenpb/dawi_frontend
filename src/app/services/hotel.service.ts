@@ -2,8 +2,9 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { HotelResponse, HotelRequest } from '../interfaces';
+import { environment } from '../../environments/environments.prod';
 
-const baseUrl = 'http://localhost:8080/api/admin';
+const baseUrl = `${environment.apiUrl}/admin`;
 
 @Injectable({
   providedIn: 'root',

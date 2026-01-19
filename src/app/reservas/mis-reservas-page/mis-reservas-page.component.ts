@@ -2,9 +2,10 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
-import { ReservaPublicService } from '../../services/reserva-public.service';
-import { ReservaListResponse } from '../../../interfaces';
+
 import { HttpClient } from '@angular/common/http';
+import { ReservaPublicService } from '../../home/services/reserva-public.service';
+import { ReservaListResponse } from '../../interfaces';
 
 @Component({
   standalone: true,

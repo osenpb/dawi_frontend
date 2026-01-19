@@ -67,7 +67,9 @@
             <label class="block text-sm text-gray-600 mb-1">DNI</label>
             <input type="text" [formControl]="clienteForm.controls.dni" maxlength="8"
               class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              [class.border-red-500]="dniInvalid" [class.border-gray-300]="!dniInvalid" placeholder="12345678" />
+              [class.border-red-500]="dniInvalid"
+              [class.border-gray-300]="!dniInvalid"
+              placeholder="Ej. 12345678" />
             @if (dniInvalid) {
             <p class="mt-1 text-sm text-red-500">DNI inválido (8 dígitos)</p>
             }
@@ -90,7 +92,7 @@
             <label class="block text-sm text-gray-600 mb-1">Teléfono</label>
             <input type="text" [formControl]="clienteForm.controls.telefono" maxlength="9"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              [class.border-red-500]="telefonoInvalid" placeholder="987654321" />
+              [class.border-red-500]="telefonoInvalid" placeholder="Ej. 987654321" />
             @if (telefonoInvalid) {
             <p class="mt-1 text-sm text-red-500">Teléfono inválido</p>
             }

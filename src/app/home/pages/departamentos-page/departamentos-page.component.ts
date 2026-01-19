@@ -26,7 +26,7 @@ export class DepartamentosPageComponent {
     if (!termino) {
       return this.departamentos();
     }
-    return this.departamentos().filter(dep => 
+    return this.departamentos().filter(dep =>
       dep.nombre.toLowerCase().includes(termino)
     );
   });
@@ -42,7 +42,7 @@ export class DepartamentosPageComponent {
     'Lambayeque': 'https://images.unsplash.com/photo-1599930113854-d6d7fd521f10?w=600',
     'Loreto': 'https://images.unsplash.com/photo-1601000938259-9e92002320b2?w=600',
     'Ica': 'https://images.unsplash.com/photo-1580820267682-426da823b514?w=600',
-    'Puno': 'https://images.unsplash.com/photo-1580975929351-2ec71e529bdc?w=600',
+    'Puno': 'https://freewalkingtoursperu.com/wp-content/uploads/2024/06/10-lugares-turisticos-en-puno_8.webp',
     'Tacna': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600',
     'Madre de Dios': 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=600',
     'Tumbes': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600',
@@ -92,7 +92,7 @@ export class DepartamentosPageComponent {
   }
 
   getImagenDepartamento(nombre: string): string {
-    return this.imagenesDepartamentos[nombre] || 
+    return this.imagenesDepartamentos[nombre] ||
       `https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600`;
   }
 
