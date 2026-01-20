@@ -20,7 +20,7 @@ import { NavigationLinksComponent } from '../../components/navigation-links/navi
   selector: 'app-confirmacion-page',
   imports: [
     CommonModule,
-    RouterLink,
+    
     LoadingSpinnerComponent,
     ErrorDisplayComponent,
     ReservationHeaderComponent,
