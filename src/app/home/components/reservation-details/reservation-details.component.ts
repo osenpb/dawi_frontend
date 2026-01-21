@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReservaResponse } from '../../../interfaces/reserva/reserva.interface';
-import { ConfirmationUtils } from '../../pages/confirmacion-page/confirmation-utils';
-import { ConfirmationDataAccessors } from '../../pages/confirmacion-page/confirmation-data-accessors';
+import { ConfirmationUtils } from '../../utils/confirmation-utils';
+import { ConfirmationDataAccessors } from '../../utils/confirmation-data-accessors';
 
 @Component({
   selector: 'app-reservation-details',

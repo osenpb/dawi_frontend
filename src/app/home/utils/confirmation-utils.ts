@@ -1,4 +1,4 @@
-import { ReservaResponse } from '../../../interfaces/reserva/reserva.interface';
+import { ReservaResponse } from '../../interfaces';
 
 /**
  * Utilidades para formateo y cálculos relacionados con confirmaciones de reserva

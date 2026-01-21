@@ -1,4 +1,4 @@
-import { ReservaResponse } from '../../../interfaces/reserva/reserva.interface';
+import { ReservaResponse } from '../../interfaces';
 
 /**
  * Helpers para acceder a datos de reserva de manera centralizada
