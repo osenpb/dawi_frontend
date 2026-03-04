@@ -5,9 +5,9 @@ An interactive image stack component built with React and Motion. Features smoot
 A minimalist e-commerce built with Angular 20 and Tailwind. 
 ✨ Frontend Technologies
 
-    Angular 20
-    TypeScript
-    Tailwind CSS 4
+  - Angular 20
+  - TypeScript
+  - Tailwind CSS 4
     
 🚀 Features
 
