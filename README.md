@@ -1,59 +1,45 @@
-# Ayni - frontend
+🃏 Dynamic Image Card Stack
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.8.
+An interactive image stack component built with React and Motion. Features smooth 3D animations, drag interactions, and a reusable component architecture that can work with any type of stackable content.
 
-## Development server
+A minimalist e-commerce built with Angular 20 and Tailwind. 
+✨ Frontend Technologies
 
-To start a local development server, run:
+    Angular 20
+    TypeScript
+    Tailwind CSS 4
+    
+🚀 Features
 
-```bash
-ng serve
-```
+  - admin - Panel de administración (dashboard, gestión de productos, categorías, pedidos)
+  - auth - Autenticación (login, registro)
+  - cart - Carrito de compras
+  - checkout - Proceso de checkout (formulario, pago)
+  - home - Página principal (navbar, footer, categorías, marcas, about us)
+  - order - Mis pedidos
+  - payment - Página de pago
+  - product - Catálogo de productos (listado, detalle, búsqueda)
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+📍 The Process
 
-## Code scaffolding
+I wanted to create something that felt user-friendly and elegant, but with the real flow of a ecommerce. Started with a simple drag concept but realized it needed that extra dimension to feel authentic. I started to add payment notifications and other UX/UI elements to do this visually more comfortable for the user, without include over-engineering in the components that i used. 
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+🎯 Architecture
 
-```bash
-ng generate component component-name
-```
+    /-app
+      |-core
+      |-features
+      |-interfaces
+      |-services
+  
+🚦 Running the Project
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+    Clone the repository
+    Install dependencies: npm install
+    Run development server: ng new
+    Open http://localhost:5173 in your browser
 
-```bash
-ng generate --help
-```
+🎞️ Preview
+  **(commint soon)**
+ 
 
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
