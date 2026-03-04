@@ -1,31 +1,26 @@
-🃏 Dynamic Image Card Stack
 
-An interactive image stack component built with React and Motion. Features smooth 3D animations, drag interactions, and a reusable component architecture that can work with any type of stackable content.
+# Ayni - hotel reservations
 
-A minimalist e-commerce built with Angular 20 and Tailwind. 
+A minimalist e-commerce built with Angular 20 and Tailwind. Features smooth, fast interactions, and reusable component architecture.
 
-✨ Frontend Technologies
+## ✨ Frontend Technologies
 
   - Angular 20
   - TypeScript
   - Tailwind CSS 4
     
-🚀 Features
+## 🚀 Features
 
-  - admin - Panel de administración (dashboard, gestión de productos, categorías, pedidos)
-  - auth - Autenticación (login, registro)
-  - cart - Carrito de compras
-  - checkout - Proceso de checkout (formulario, pago)
-  - home - Página principal (navbar, footer, categorías, marcas, about us)
-  - order - Mis pedidos
-  - payment - Página de pago
-  - product - Catálogo de productos (listado, detalle, búsqueda)
+- admin – Administrative module (dashboard, product, category and order management)
+- auth – Authentication module (login and registration)
+- home – Landing module (navigation bar, footer, categories, brands, about section)
+- reservas – Reservation management
+  
+## 📍 The Process
 
-📍 The Process
+The goal of this project was to build a platform that connects clients with hotels across Peru, delivering a user-friendly experience while maintaining the real-world flow of a reservation system.
 
-I wanted to create something that felt user-friendly and elegant, but with the real flow of a ecommerce. Started with a simple drag concept but realized it needed that extra dimension to feel authentic. I started to add payment notifications and other UX/UI elements to do this visually more comfortable for the user, without include over-engineering in the components that i used. 
-
-🎯 Architecture
+## 🎯 Architecture
 
     /-app
       |-core
@@ -33,14 +28,13 @@ I wanted to create something that felt user-friendly and elegant, but with the r
       |-interfaces
       |-services
   
-🚦 Running the Project
+## 🚦 Running the Project
 
-    Clone the repository
-    Install dependencies: npm install
-    Run development server: ng new
-    Open http://localhost:5173 in your browser
+ 1. Clone this repository and the [backend](https://github.com/osenpb/b_ayni_sistema_reservas)
+ 2. Install dependencies: npm install
+ 3. Run development server: ng serve
+ 4. Open http://localhost:4200 in your browser
 
-🎞️ Preview
+## 🎞️ Preview
   **(commint soon)**
  
-
