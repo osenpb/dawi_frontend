@@ -3,6 +3,7 @@
 An interactive image stack component built with React and Motion. Features smooth 3D animations, drag interactions, and a reusable component architecture that can work with any type of stackable content.
 
 A minimalist e-commerce built with Angular 20 and Tailwind. 
+
 ✨ Frontend Technologies
 
   - Angular 20
