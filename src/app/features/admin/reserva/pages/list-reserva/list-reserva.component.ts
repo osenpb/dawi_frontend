@@ -1,23 +1,36 @@
-import { Reserva } from './../../../../../interfaces/reserva/reserva.interface';
+import { ReservaListResponse } from '../../../../../interfaces';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ReservaService } from '../../../../../services/reserva.service';
-
+import { LoggerService } from '../../../../../core/services/logger.service';
+import { NotificationService } from '../../../../../core/services/notification.service';
+import { CurrencySolPipe } from '../../../../../shared/pipes/currency-sol.pipe';
+import { EstadoBadgePipe } from '../../../../../shared/pipes/estado-badge.pipe';
+import { FormatDatePipe } from '../../../../../shared/pipes/format-date.pipe';
 
 @Component({
   standalone: true,
   selector: 'app-list-reserva',
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [
+    CommonModule,
+    RouterLink,
+    FormsModule,
+    CurrencySolPipe,
+    EstadoBadgePipe,
+    FormatDatePipe,
+  ],
   templateUrl: './list-reserva.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ListReservaComponent {
+export class ListReservaPageComponent {
   private reservaService = inject(ReservaService);
+  private logger = inject(LoggerService);
+  private notification = inject(NotificationService);
 
-  reservas = signal<Reserva[]>([]);
-  reservasFiltradas = signal<Reserva[]>([]);
+  reservas = signal<ReservaListResponse[]>([]);
+  reservasFiltradas = signal<ReservaListResponse[]>([]);
   loading = signal<boolean>(true);
   successMessage = signal<string | null>(null);
 
@@ -28,7 +41,7 @@ export class ListReservaComponent {
 
   // Modal eliminar
   showModalEliminar = signal<boolean>(false);
-  reservaSeleccionada = signal<Reserva | null>(null);
+  reservaSeleccionada = signal<ReservaListResponse | null>(null);
   procesando = signal<boolean>(false);
 
   constructor() {
@@ -45,7 +58,7 @@ export class ListReservaComponent {
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Error cargando reservas', err);
+        this.logger.error('Error cargando reservas', err);
         this.loading.set(false);
       },
     });
@@ -109,7 +122,7 @@ export class ListReservaComponent {
   }
 
   // === MODAL ELIMINAR ===
-  abrirModalEliminar(reserva: Reserva): void {
+  abrirModalEliminar(reserva: ReservaListResponse): void {
     this.reservaSeleccionada.set(reserva);
     this.showModalEliminar.set(true);
   }
@@ -138,41 +151,11 @@ export class ListReservaComponent {
         setTimeout(() => this.successMessage.set(null), 5000);
       },
       error: (err) => {
-        console.error('Error eliminando reserva', err);
+        this.logger.error('Error eliminando reserva', err);
         this.procesando.set(false);
         this.cerrarModalEliminar();
-        alert('No se pudo eliminar la reserva');
+        this.notification.error('No se pudo eliminar la reserva');
       },
     });
   }
-
-  getEstadoClass(estado: string): string {
-    switch (estado) {
-      case 'CONFIRMADA':
-        return 'bg-green-100 text-green-800';
-      case 'PENDIENTE':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'CANCELADA':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  }
-
-  formatDate(dateString: string): string {
-    if (!dateString) return '';
-
-    // Si viene como yyyy-MM-dd o yyyy-MM-ddTHH:mm:ss
-    const [year, month, day] = dateString.split('T')[0].split('-');
-
-    return `${day}/${month}/${year}`;
-  }
-
-  formatCurrency(amount: number): string {
-    return `S/ ${amount.toFixed(2)}`;
-  }
 }
-
-
-
-

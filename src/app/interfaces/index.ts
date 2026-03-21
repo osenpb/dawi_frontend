@@ -25,3 +25,8 @@ export * from './reserva/reserva.interface';
 
 // Dashboard
 export * from './dashboard/dashboard.interface';
+
+// Auth
+export type { LoginRequest, RegisterRequest, AuthResponse } from './auth/auth.interface';
+export type { UserResponse } from './auth/userResponse.interface';
+export type { Role } from './auth/role.interface';

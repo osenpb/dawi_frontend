@@ -21,7 +21,3 @@ export interface ClienteRequest {
   telefono?: string;
 }
 
-/**
- * @deprecated Usar ClienteResponse en su lugar
- */
-export type Cliente = ClienteResponse;

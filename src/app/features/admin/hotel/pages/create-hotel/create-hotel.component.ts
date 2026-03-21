@@ -1,15 +1,18 @@
 import { ActivatedRoute, Router } from '@angular/router';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HotelService } from '../../../../../services/hotel.service';
 import { DepartamentoService } from '../../../../../services/departamento.service';
 import { DepartamentoResponse } from '../../../../../interfaces';
+import { LoggerService } from '../../../../../core/services/logger.service';
+import { NotificationService } from '../../../../../core/services/notification.service';
 
 @Component({
-  selector: 'app-create-hotel.component',
+  selector: 'app-create-hotel',
   imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './create-hotel.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateHotelPageComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -17,6 +20,8 @@ export class CreateHotelPageComponent implements OnInit {
   private departamentoService = inject(DepartamentoService);
   private route = inject(ActivatedRoute);
   router = inject(Router);
+  private logger = inject(LoggerService);
+  private notification = inject(NotificationService);
 
   departamentos = signal<DepartamentoResponse[]>([]);
   departamentoIdPreseleccionado = signal<number | null>(null);
@@ -64,7 +69,7 @@ export class CreateHotelPageComponent implements OnInit {
 
     this.hotelService.createHotel(hotelData).subscribe({
       next: () => {
-        alert('Hotel creado exitosamente');
+        this.notification.success('Hotel creado exitosamente');
         this.hotelForm.reset();
 
         // Redirigir al departamento si estaba preseleccionado
@@ -76,8 +81,8 @@ export class CreateHotelPageComponent implements OnInit {
         }
       },
       error: (err: any) => {
-        console.error('Error creando hotel:', err);
-        alert('Error al crear el hotel');
+        this.logger.error('Error creando hotel:', err);
+        this.notification.error('Error al crear el hotel');
         this.saving.set(false);
       },
     });

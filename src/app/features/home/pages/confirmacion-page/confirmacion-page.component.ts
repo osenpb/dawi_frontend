@@ -12,9 +12,10 @@ import { ReservationDetailsComponent } from '../../components/reservation-detail
 import { ActionButtonsComponent } from '../../components/action-buttons/action-buttons.component';
 import { InfoAlertComponent } from '../../components/info-alert/info-alert.component';
 import { NavigationLinksComponent } from '../../components/navigation-links/navigation-links.component';
-import { ReservaPublicService } from '../../services/reserva-public.service';
+import { ReservaPublicService } from '../../../../services/reserva-public.service';
 import { PdfGeneratorService } from '../../../../services/pdf-generator.service';
 import { ReservaResponse } from '../../interfaces';
+import { LoggerService } from '../../../../core/services/logger.service';
 
 @Component({
   standalone: true,
@@ -38,6 +39,7 @@ export class ConfirmacionPageComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private reservaService = inject(ReservaPublicService);
   private pdfGenerator = inject(PdfGeneratorService);
+  private logger = inject(LoggerService);
 
   reservaId = signal<number | null>(null);
   reserva = signal<ReservaResponse | null>(null);
@@ -62,7 +64,7 @@ export class ConfirmacionPageComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Error cargando reserva:', err);
+        this.logger.error('Error cargando reserva:', err);
         this.error.set(true);
         this.loading.set(false);
       },

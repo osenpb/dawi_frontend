@@ -6,7 +6,7 @@ import { FooterComponent } from "../footer/footer.component";
 import { NavbarComponent } from "../navbar/navbar.component";
 
 @Component({
-  selector: 'app-cliente-layout.component',
+  selector: 'app-cliente-layout',
   imports: [RouterModule, FooterComponent, RouterOutlet, NavbarComponent],
   templateUrl: './cliente-layout.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

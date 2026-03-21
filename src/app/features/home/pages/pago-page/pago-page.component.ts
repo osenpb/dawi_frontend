@@ -1,22 +1,32 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+  signal,
+  computed,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ReservaPublicService } from '../../services/reserva-public.service';
+import { ReservaPublicService } from '../../../../services/reserva-public.service';
 import { ReservaResponse } from '../../interfaces';
-
+import { LoggerService } from '../../../../core/services/logger.service';
+import { CurrencySolPipe } from '../../../../shared/pipes/currency-sol.pipe';
 
 @Component({
   standalone: true,
   selector: 'app-pago-page',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, CurrencySolPipe],
   templateUrl: './pago-page.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PagoPageComponent implements OnInit {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private reservaService = inject(ReservaPublicService);
+  private logger = inject(LoggerService);
 
   reservaId = signal<number | null>(null);
   reserva = signal<ReservaResponse | null>(null);
@@ -58,7 +68,7 @@ export class PagoPageComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Error cargando reserva:', err);
+        this.logger.error('Error cargando reserva:', err);
         this.errorMessage.set('No se pudo cargar la información de la reserva');
         this.loading.set(false);
       },
@@ -108,15 +118,13 @@ export class PagoPageComponent implements OnInit {
         this.router.navigate(['/home/reserva', reservaId, 'confirmacion']);
       },
       error: (err) => {
-        console.error('Error al confirmar pago:', err);
+        this.logger.error('Error al confirmar pago:', err);
         this.procesando.set(false);
-        this.errorMessage.set(err.error?.message || 'Error al procesar el pago. Intente nuevamente.');
-      }
+        this.errorMessage.set(
+          err.error?.message || 'Error al procesar el pago. Intente nuevamente.',
+        );
+      },
     });
-  }
-
-  formatCurrency(amount: number): string {
-    return `S/ ${amount.toFixed(2)}`;
   }
 
   // Getters para validaciones
@@ -140,5 +148,3 @@ export class PagoPageComponent implements OnInit {
     return !!(control?.invalid && control?.touched);
   }
 }
-
-

@@ -1,4 +1,4 @@
-import { Reserva, ReservaAdminUpdateDTO } from './../../../../../interfaces/reserva/reserva.interface';
+import { ReservaListResponse, ReservaAdminUpdateDTO } from '../../../../../interfaces';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -8,6 +8,9 @@ import { ReservaService } from '../../../../../services/reserva.service';
 import { HotelService } from '../../../../../services/hotel.service';
 import { DepartamentoService } from '../../../../../services/departamento.service';
 import { DepartamentoResponse, HabitacionResponse, HotelResponse } from '../../../../../interfaces';
+import { LoggerService } from '../../../../../core/services/logger.service';
+import { NotificationService } from '../../../../../core/services/notification.service';
+import { CurrencySolPipe } from '../../../../../shared/pipes/currency-sol.pipe';
 
 interface HabitacionSeleccionada {
   index: number;
@@ -17,20 +20,22 @@ interface HabitacionSeleccionada {
 @Component({
   standalone: true,
   selector: 'app-edit-reserva',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, CurrencySolPipe],
   templateUrl: './edit-reserva.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditReservaComponent implements OnInit {
+export class EditReservaPageComponent implements OnInit {
   private fb = inject(FormBuilder);
   private reservaService = inject(ReservaService);
   private hotelService = inject(HotelService);
   private departamentoService = inject(DepartamentoService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private logger = inject(LoggerService);
+  private notification = inject(NotificationService);
 
   reservaId = signal<number | null>(null);
-  reserva = signal<Reserva | null>(null);
+  reserva = signal<ReservaListResponse | null>(null);
   departamentos = signal<DepartamentoResponse[]>([]);
   hoteles = signal<HotelResponse[]>([]);
   hotelesFiltrados = signal<HotelResponse[]>([]);
@@ -82,7 +87,7 @@ export class EditReservaComponent implements OnInit {
       reserva: this.reservaService.getById(reservaId),
     }).subscribe({
       next: ({ departamentos, hoteles, reserva }) => {
-        console.log('Reserva cargada:', reserva);
+        this.logger.log('Reserva cargada:', reserva);
 
         this.departamentos.set(departamentos);
         this.hoteles.set(hoteles);
@@ -93,14 +98,14 @@ export class EditReservaComponent implements OnInit {
         this.precargarFormulario(reserva, hoteles);
       },
       error: (err) => {
-        console.error('Error cargando datos:', err);
-        alert('No se pudo cargar la reserva');
+        this.logger.error('Error cargando datos:', err);
+        this.notification.error('No se pudo cargar la reserva');
         this.router.navigate(['/admin/reserva/list']);
       },
     });
   }
 
-  precargarFormulario(reserva: Reserva, hoteles: HotelResponse[]): void {
+  precargarFormulario(reserva: ReservaListResponse, hoteles: HotelResponse[]): void {
     // Buscar el departamento del hotel
     const departamentoId = reserva.hotel?.departamento?.id;
 
@@ -143,7 +148,7 @@ export class EditReservaComponent implements OnInit {
           this.loading.set(false);
         },
         error: (err) => {
-          console.error('Error cargando habitaciones:', err);
+          this.logger.error('Error cargando habitaciones:', err);
           this.loading.set(false);
         },
       });
@@ -179,7 +184,7 @@ export class EditReservaComponent implements OnInit {
           this.habitacionesDisponibles.set(hotel.habitaciones || []);
         },
         error: (err) => {
-          console.error('Error cargando habitaciones:', err);
+          this.logger.error('Error cargando habitaciones:', err);
           this.habitacionesDisponibles.set([]);
         },
       });
@@ -207,7 +212,7 @@ export class EditReservaComponent implements OnInit {
 
     const seleccionadas = this.habitacionesSeleccionadas();
     this.habitacionesSeleccionadas.set(
-      seleccionadas.map((s) => (s.index === index ? { ...s, habitacionId } : s))
+      seleccionadas.map((s) => (s.index === index ? { ...s, habitacionId } : s)),
     );
   }
 
@@ -294,29 +299,25 @@ export class EditReservaComponent implements OnInit {
       habitaciones: habitacionesIds,
     };
 
-    console.log('Enviando actualización:', reservaData);
+    this.logger.log('Enviando actualización:', reservaData);
 
     this.saving.set(true);
     this.errorMessage.set(null);
 
     this.reservaService.update(id, reservaData).subscribe({
       next: (response) => {
-        console.log('Respuesta:', response);
-        alert('Reserva actualizada exitosamente');
+        this.logger.log('Respuesta:', response);
+        this.notification.success('Reserva actualizada exitosamente');
         this.router.navigate(['/admin/reserva/list']);
       },
       error: (err) => {
-        console.error('Error actualizando reserva:', err);
+        this.logger.error('Error actualizando reserva:', err);
         this.errorMessage.set(
-          'Error al actualizar la reserva: ' + (err.error?.message || err.message)
+          'Error al actualizar la reserva: ' + (err.error?.message || err.message),
         );
         this.saving.set(false);
       },
     });
-  }
-
-  formatCurrency(amount: number): string {
-    return `S/ ${amount.toFixed(2)}`;
   }
 
   // Getters para validaciones
@@ -340,7 +341,3 @@ export class EditReservaComponent implements OnInit {
     return !!(control?.invalid && control?.touched);
   }
 }
-
-
-
-

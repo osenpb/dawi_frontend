@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
@@ -8,6 +8,8 @@ import { TipoHabitacionResponse } from '../../../../../interfaces';
 import { HotelService } from '../../../../../services/hotel.service';
 import { TipoHabitacionService } from '../../../../../services/tipo-habitacion.service';
 import { DepartamentoService } from '../../../../../services/departamento.service';
+import { LoggerService } from '../../../../../core/services/logger.service';
+import { NotificationService } from '../../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-hotel-form',
@@ -15,9 +17,16 @@ import { DepartamentoService } from '../../../../../services/departamento.servic
   templateUrl: './update-page.component.html',
   imports: [ReactiveFormsModule, CommonModule, RouterModule]
 })
-export class UpdateHotelFormComponent implements OnInit {
+export class UpdateHotelComponent implements OnInit {
   hotelForm!: FormGroup;
-
+  private logger = inject(LoggerService);
+  private notification = inject(NotificationService);
+  private fb = inject(FormBuilder);
+  private hotelService = inject(HotelService);
+  private tipoHabitacionService = inject(TipoHabitacionService);
+  private departamentoService = inject(DepartamentoService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   tiposHabitacion = signal<TipoHabitacionResponse[]>([]);
   departamentos = signal<any[]>([]);
@@ -25,15 +34,6 @@ export class UpdateHotelFormComponent implements OnInit {
   error = signal<string | null>(null);
 
   hotelId!: number;
-
-  constructor(
-    private fb: FormBuilder,
-    private hotelService: HotelService,
-    private tipoHabitacionService: TipoHabitacionService,
-    private departamentoService: DepartamentoService,
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
 
   ngOnInit(): void {
     this.hotelId = Number(this.route.snapshot.paramMap.get('id'));
@@ -76,9 +76,7 @@ export class UpdateHotelFormComponent implements OnInit {
   }
 
   removeHabitacion(i: number) {
-    if (confirm('¿Estás seguro de eliminar esta habitación?')) {
-      this.habitaciones.removeAt(i);
-    }
+    this.habitaciones.removeAt(i);
   }
 
   loadData() {
@@ -91,7 +89,7 @@ export class UpdateHotelFormComponent implements OnInit {
       hotel: this.hotelService.getById(this.hotelId)
     }).subscribe({
       next: ({ tipos, departamentos, hotel }) => {
-        console.log('Datos cargados:', { tipos, departamentos, hotel });
+        this.logger.log('Datos cargados:', { tipos, departamentos, hotel });
 
 
         this.tiposHabitacion.set(tipos);
@@ -118,10 +116,10 @@ export class UpdateHotelFormComponent implements OnInit {
 
 
         this.loading.set(false);
-        console.log('Formulario cargado:', this.hotelForm.value);
+        this.logger.log('Formulario cargado:', this.hotelForm.value);
       },
       error: (err) => {
-        console.error('Error al cargar datos:', err);
+        this.logger.error('Error al cargar datos:', err);
 
         let errorMsg = 'Error al cargar los datos';
         if (err.status === 404) {
@@ -140,7 +138,7 @@ export class UpdateHotelFormComponent implements OnInit {
 
   onSubmit() {
     if (this.hotelForm.invalid) {
-      alert('Por favor completa todos los campos requeridos');
+      this.notification.warning('Por favor completa todos los campos requeridos');
       this.hotelForm.markAllAsTouched();
       return;
     }
@@ -159,16 +157,16 @@ export class UpdateHotelFormComponent implements OnInit {
       imagenUrl: ''
     };
 
-    console.log('Payload a enviar:', payload);
+    this.logger.log('Payload a enviar:', payload);
 
     this.hotelService.updateHotel(this.hotelId, payload).subscribe({
       next: (response: any) => {
-        console.log('Respuesta del servidor:', response);
-        alert('Hotel actualizado correctamente');
+        this.logger.log('Respuesta del servidor:', response);
+        this.notification.success('Hotel actualizado correctamente');
         this.router.navigate(['/admin/hotel/list']);
       },
       error: (err: any) => {
-        console.error('Error al guardar:', err);
+        this.logger.error('Error al guardar:', err);
 
         let errorMsg = 'Error desconocido';
         if (err.error?.message) {
@@ -181,7 +179,7 @@ export class UpdateHotelFormComponent implements OnInit {
           errorMsg = 'No tienes permisos para actualizar este hotel';
         }
 
-        alert('Error al guardar el hotel: ' + errorMsg);
+        this.notification.error('Error al guardar el hotel: ' + errorMsg);
       }
     });
   }

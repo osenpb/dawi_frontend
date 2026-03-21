@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
+  standalone: true,
   selector: 'app-hoteles-por-departamento',
   imports: [],
-  templateUrl: './hoteles-por-departamento.html',
+  templateUrl: './hoteles-por-departamento.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HotelesPorDepartamento { }
+export class HotelesPorDepartamentoComponent { }

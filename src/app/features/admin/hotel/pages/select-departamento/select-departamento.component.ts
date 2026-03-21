@@ -3,17 +3,19 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DepartamentoService } from '../../../../../services/departamento.service';
 import { DepartamentoResponse } from '../../../../../interfaces';
+import { LoggerService } from '../../../../../core/services/logger.service';
 
 
 @Component({
   standalone: true,
-  selector: 'app-select-departamento-hotel',
+  selector: 'app-select-departamento',
   imports: [CommonModule, RouterLink],
   templateUrl: './select-departamento.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SelectDepartamentoHotelComponent implements OnInit {
   private departamentoService = inject(DepartamentoService);
+  private logger = inject(LoggerService);
 
   departamentos = signal<DepartamentoResponse[]>([]);
   loading = signal<boolean>(true);
@@ -30,7 +32,7 @@ export class SelectDepartamentoHotelComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Error cargando departamentos:', err);
+        this.logger.error('Error cargando departamentos:', err);
         this.loading.set(false);
       }
     });

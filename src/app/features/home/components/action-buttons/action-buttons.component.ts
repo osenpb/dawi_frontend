@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    @if (estado === 'CONFIRMADA') {
+    @if (estado() === 'CONFIRMADA') {
     <div class="flex flex-col sm:flex-row gap-4 mb-8">
       <button
         (click)="onDescargarPDF()"
@@ -31,9 +31,9 @@ import { CommonModule } from '@angular/common';
   `,
 })
 export class ActionButtonsComponent {
-  @Input() estado!: string;
-  @Output() descargarPDF = new EventEmitter<void>();
-  @Output() imprimir = new EventEmitter<void>();
+  estado = input.required<string>();
+  descargarPDF = output<void>();
+  imprimir = output<void>();
 
   onDescargarPDF() {
     this.descargarPDF.emit();

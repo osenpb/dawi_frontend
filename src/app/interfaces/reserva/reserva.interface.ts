@@ -155,14 +155,3 @@ export interface MisReservasVacio {
  */
 export type MisReservasResponse = ReservaListResponse[] | MisReservasVacio;
 
-// ==================== ALIAS PARA COMPATIBILIDAD ====================
-
-/**
- * @deprecated Usar ReservaListResponse en su lugar
- */
-export type Reserva = ReservaListResponse;
-
-/**
- * @deprecated Usar ReservaListResponse en su lugar
- */
-export type ReservaCompleta = ReservaListResponse;
