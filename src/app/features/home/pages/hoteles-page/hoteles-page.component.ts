@@ -65,9 +65,9 @@ export class HotelesPageComponent implements OnInit {
 
   loadHotelesByDepartamento(depId: number) {
     this.loading.set(true);
-    this.reservaPublicService.getHotelesByDepartamento(depId).subscribe({
+    this.reservaPublicService.getHotelesPorDepartamento(depId).subscribe({
       next: (data) => {
-        this.hoteles.set(data);
+        this.hoteles.set(data.hoteles);
         this.loading.set(false);
       },
       error: (error) => {
