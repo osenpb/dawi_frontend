@@ -8,11 +8,17 @@ RUN npm ci
 COPY . .
 RUN npx ng build --configuration production
 
-FROM nginx:alpine
+# Stage 2: Servir archivos estáticos
+FROM node:22-alpine
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist/dawi_frontend /usr/share/nginx/html
+WORKDIR /app
+
+# Instalar http-server para servir la app
+RUN npm install -g http-server
+
+# Copiar los archivos construidos
+COPY --from=build /app/dist/dawi_frontend /app
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["http-server", "-p", "80", "-c-1", "."]
