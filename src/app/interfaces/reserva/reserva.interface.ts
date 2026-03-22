@@ -1,4 +1,3 @@
-import { ClienteRequest, ClienteResponse } from '../cliente/cliente.interface';
 import { HotelResponse } from '../hotel/hotel-response.interface';
 
 // ==================== TIPOS SIMPLES ====================
@@ -38,15 +37,15 @@ export interface HotelSimple {
 }
 
 /**
- * Cliente simplificado dentro de reserva - Coincide con backend ReservaListResponse.ClienteSimple
+ * Usuario simplificado dentro de reserva - Coincide con backend ReservaListResponse.UsuarioSimple
  */
-export interface ClienteSimple {
+export interface UsuarioSimple {
   id: number;
   nombre: string;
   apellido: string;
   email: string;
   telefono: string;
-  documento: string;
+  dni: string;
 }
 
 /**
@@ -72,7 +71,7 @@ export interface ReservaListResponse {
   total: number;
   estado: string;
   hotel: HotelSimple;
-  cliente: ClienteSimple;
+  usuario: UsuarioSimple;
   detalles: DetalleSimple[];
 }
 
@@ -88,7 +87,11 @@ export interface ReservaResponse {
   total: number;
   estado: string;
   hotel: HotelResponse;
-  cliente: ClienteResponse;
+  usuarioId: number;
+  usuarioNombre: string;
+  usuarioApellido: string;
+  usuarioEmail: string;
+  usuarioDni: string;
   detalles: DetalleReserva[];
 }
 
@@ -117,7 +120,6 @@ export interface ReservaRequest {
   fechaInicio: string;
   fechaFin: string;
   habitacionesIds: number[];
-  cliente: ClienteRequest;
 }
 
 /**
@@ -136,7 +138,6 @@ export interface ReservaAdminUpdateDTO {
   fechaFin: string;
   estado: string;
   hotelId: number;
-  cliente: ClienteRequest;
   habitaciones: number[];
 }
 
@@ -154,4 +155,3 @@ export interface MisReservasVacio {
  * Respuesta de mis reservas - puede ser array de reservas o mensaje de vacío
  */
 export type MisReservasResponse = ReservaListResponse[] | MisReservasVacio;
-

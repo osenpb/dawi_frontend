@@ -15,17 +15,18 @@ export class ConfirmationDataAccessors {
 
   static get clienteNombreCompleto(): (reserva: ReservaResponse | null) => string {
     return (reserva) => {
-      const cliente = reserva?.cliente;
-      if (!cliente) return 'N/A';
-      return `${cliente.nombre} ${cliente.apellido}`.trim() || 'N/A';
+      const nombre = reserva?.usuarioNombre;
+      const apellido = reserva?.usuarioApellido;
+      if (!nombre && !apellido) return 'N/A';
+      return `${nombre} ${apellido}`.trim() || 'N/A';
     };
   }
 
   static get clienteDni(): (reserva: ReservaResponse | null) => string {
-    return (reserva) => reserva?.cliente?.documento || 'N/A';
+    return (reserva) => reserva?.usuarioDni || 'N/A';
   }
 
   static get clienteEmail(): (reserva: ReservaResponse | null) => string {
-    return (reserva) => reserva?.cliente?.email || 'N/A';
+    return (reserva) => reserva?.usuarioEmail || 'N/A';
   }
 }

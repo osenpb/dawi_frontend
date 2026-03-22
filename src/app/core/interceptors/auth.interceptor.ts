@@ -11,8 +11,8 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
   // Solo agregar token si existe y no es ruta de auth
   if (
     token &&
-    !req.url.includes('/api/v1/auth/login') &&
-    !req.url.includes('/api/v1/auth/register')
+    !req.url.includes('/api/auth/login') &&
+    !req.url.includes('/api/auth/register')
   ) {
     req = req.clone({
       headers: req.headers.set('Authorization', `Bearer ${token}`),

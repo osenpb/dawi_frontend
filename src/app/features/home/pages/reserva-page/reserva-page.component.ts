@@ -325,13 +325,6 @@ export class ReservaPageComponent implements OnInit {
       fechaInicio: fechasData.fechaInicio!,
       fechaFin: fechasData.fechaFin!,
       habitacionesIds: habitacionesIds,
-      cliente: {
-        dni: clienteData.dni!,
-        nombre: nombre,
-        apellido: apellido,
-        email: clienteData.correo!,
-        telefono: clienteData.telefono || undefined,
-      },
     };
 
     this.submitting.set(true);

@@ -9,9 +9,6 @@ export * from './departamento/departamento-response.interface';
 // Tipo Habitación
 export * from './tipo-habitacion/tipo-habitacion-response.interface';
 
-// Cliente
-export * from './cliente/cliente.interface';
-
 // Habitación
 export * from './habitacion/habitacion-response.interface';
 export * from './habitacion/habitacion-request.interface';

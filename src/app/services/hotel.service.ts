@@ -24,7 +24,9 @@ export class HotelService {
   }
 
   getByDepartamento(depId: number): Observable<HotelResponse[]> {
-    return this.http.get<HotelResponse[]>(`${baseUrl}/hoteles/departamento/${depId}`).pipe(
+    return this.http.get<HotelResponse[]>(`${baseUrl}/hoteles`, {
+      params: { departamentoId: depId },
+    }).pipe(
       catchError((error: any) => {
         this.logger.error('Error al obtener hoteles por departamento:', error);
         return throwError(() => error);

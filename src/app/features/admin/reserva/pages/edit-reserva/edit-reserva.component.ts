@@ -119,11 +119,11 @@ export class EditReservaPageComponent implements OnInit {
     this.reservaForm.patchValue({
       departamentoId: departamentoId ? String(departamentoId) : '',
       hotelId: reserva.hotel?.id ? String(reserva.hotel.id) : '',
-      clienteNombre: reserva.cliente?.nombre || '',
-      clienteApellido: reserva.cliente?.apellido || '',
-      clienteDni: reserva.cliente?.documento || '',
-      clienteCorreo: reserva.cliente?.email || '',
-      clienteTelefono: reserva.cliente?.telefono || '',
+      clienteNombre: reserva.usuario?.nombre || '',
+      clienteApellido: reserva.usuario?.apellido || '',
+      clienteDni: reserva.usuario?.dni || '',
+      clienteCorreo: reserva.usuario?.email || '',
+      clienteTelefono: reserva.usuario?.telefono || '',
       fechaInicio: reserva.fechaInicio || '',
       fechaFin: reserva.fechaFin || '',
       estado: reserva.estado || 'CONFIRMADA',
@@ -289,13 +289,6 @@ export class EditReservaPageComponent implements OnInit {
       fechaFin: formValue.fechaFin!,
       estado: formValue.estado!,
       hotelId: Number(formValue.hotelId),
-      cliente: {
-        dni: formValue.clienteDni!,
-        nombre: formValue.clienteNombre!,
-        apellido: formValue.clienteApellido!,
-        email: formValue.clienteCorreo!,
-        telefono: formValue.clienteTelefono || undefined,
-      },
       habitaciones: habitacionesIds,
     };
 

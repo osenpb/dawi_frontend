@@ -68,8 +68,11 @@ export class AuthService {
     return this.http
       .post<AuthResponse>(`${baseUrl}/register`, {
         username: registerRequest.username,
+        nombre: registerRequest.nombre,
+        apellido: registerRequest.apellido,
         email: registerRequest.email,
         telefono: registerRequest.telefono,
+        dni: registerRequest.dni,
         password: registerRequest.password,
       })
       .pipe(
@@ -222,6 +225,8 @@ export class AuthService {
       errorMessage = 'Credenciales inválidas';
     } else if (error.status === 403) {
       errorMessage = 'No tienes permisos';
+    } else if (error.status === 409) {
+      errorMessage = error.error?.message || 'Datos duplicados';
     }
 
     return throwError(() => ({
@@ -234,7 +239,7 @@ export class AuthService {
    * Obtiene información del usuario actual desde el backend
    */
   me(): Observable<UserResponse> {
-    return this.http.get<UserResponse>(`${baseUrl}/auth/me`).pipe(
+    return this.http.get<UserResponse>(`${baseUrl}/me`).pipe(
       tap((user: UserResponse) => {
         this.logger.log('Usuario obtenido de /me:', user.username);
         this._user.set(user);

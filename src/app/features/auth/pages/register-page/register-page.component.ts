@@ -23,9 +23,12 @@ export class RegisterPageComponent {
   errorMessage = signal('');
 
   registerForm = this.fb.group({
-    username: ['', [Validators.required, Validators.minLength(3)]],
+    username: [''],
+    nombre: ['', [Validators.required, Validators.minLength(2)]],
+    apellido: [''],
     email: ['', [Validators.required, Validators.email]],
-    telefono: ['', [Validators.required, Validators.pattern(/^\d{9,15}$/)]],
+    telefono: ['', [Validators.required, Validators.pattern(/^9\d{8}$/)]],
+    dni: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
     password: ['', [Validators.required, Validators.minLength(8)]],
     repeatPassword: ['', [Validators.required, Validators.minLength(8)]],
   });
@@ -43,7 +46,7 @@ export class RegisterPageComponent {
       return;
     }
 
-    const { username, email, telefono, password, repeatPassword } = this.registerForm.value;
+    const { username, nombre, apellido, email, telefono, dni, password, repeatPassword } = this.registerForm.value;
 
     // Validar que las contraseñas coincidan
     if (password !== repeatPassword) {
@@ -54,8 +57,11 @@ export class RegisterPageComponent {
 
     const registerRequest: RegisterRequest = {
       username: username!,
+      nombre: nombre!,
+      apellido: apellido || null,
       email: email!,
       telefono: telefono!,
+      dni: dni!,
       password: password!,
     };
 

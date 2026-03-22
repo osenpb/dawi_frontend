@@ -35,7 +35,7 @@ export class ReservaService {
 
   buscarPorDni(dni: string): Observable<ReservaListResponse[]> {
     return this.http
-      .get<ReservaListResponse[]>(`${baseUrl}/reservas/buscar`, {
+      .get<ReservaListResponse[]>(`${baseUrl}/reservas`, {
         params: { dni },
       })
       .pipe(
