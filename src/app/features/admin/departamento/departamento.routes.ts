@@ -1,20 +1,20 @@
 import { Routes } from '@angular/router';
-import { ListDepartamentoComponent } from './pages/list-departamento/list-departamento.component';
-import { CreateDepartamentoComponent } from './pages/create-departamento/create-departamento.component';
-import { EditDepartamentoComponent } from './pages/edit-departamento/edit-departamento.component';
+import { ListDepartamentoPageComponent } from './pages/list-departamento/list-departamento.component';
+import { CreateDepartamentoPageComponent } from './pages/create-departamento/create-departamento.component';
+import { EditDepartamentoPageComponent } from './pages/edit-departamento/edit-departamento.component';
 
 export const departamentoRoutes: Routes = [
   {
     path: 'list',
-    component: ListDepartamentoComponent,
+    component: ListDepartamentoPageComponent,
   },
   {
     path: 'crear',
-    component: CreateDepartamentoComponent,
+    component: CreateDepartamentoPageComponent,
   },
   {
     path: 'editar/:id',
-    component: EditDepartamentoComponent,
+    component: EditDepartamentoPageComponent,
   },
 ];
 

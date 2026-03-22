@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DepartamentoService } from '../../../../../services/departamento.service';
+import { LoggerService } from '../../../../../core/services/logger.service';
+import { NotificationService } from '../../../../../core/services/notification.service';
 
 
 @Component({
@@ -12,11 +14,13 @@ import { DepartamentoService } from '../../../../../services/departamento.servic
   templateUrl: './edit-departamento.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditDepartamentoComponent implements OnInit {
+export class EditDepartamentoPageComponent implements OnInit {
   private fb = inject(FormBuilder);
   private departamentoService = inject(DepartamentoService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private logger = inject(LoggerService);
+  private notification = inject(NotificationService);
 
   departamentoId = signal<number | null>(null);
   loading = signal<boolean>(true);
@@ -49,8 +53,8 @@ export class EditDepartamentoComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Error al cargar departamento:', err);
-        alert('No se pudo cargar el departamento');
+        this.logger.error('Error al cargar departamento:', err);
+        this.notification.error('No se pudo cargar el departamento');
         this.router.navigate(['/admin/departamento/list']);
       },
     });
@@ -75,12 +79,12 @@ export class EditDepartamentoComponent implements OnInit {
 
     this.departamentoService.update(id, departamentoData).subscribe({
       next: () => {
-        alert('Departamento actualizado exitosamente');
+        this.notification.success('Departamento actualizado exitosamente');
         this.router.navigate(['/admin/departamento/list']);
       },
       error: (err) => {
-        console.error('Error al actualizar departamento:', err);
-        alert('Error al actualizar el departamento');
+        this.logger.error('Error al actualizar departamento:', err);
+        this.notification.error('Error al actualizar el departamento');
         this.saving.set(false);
       },
     });

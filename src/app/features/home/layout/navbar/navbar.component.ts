@@ -1,7 +1,9 @@
-import { Component, signal, inject, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '../../../auth/services/auth.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { LoggerService } from '../../../../core/services/logger.service';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 
 @Component({
@@ -9,12 +11,15 @@ import { AuthService } from '../../../auth/services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterModule, RouterLink, RouterLinkActive],
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css']
+  styleUrls: ['./navbar.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavbarComponent {
 
   authService = inject(AuthService);
   private router = inject(Router);
+  private logger = inject(LoggerService);
+  private notification = inject(NotificationService);
 
   // Signals derivados del AuthService, para no tener que duplicar
   usuario = this.authService.user;
@@ -29,7 +34,7 @@ export class NavbarComponent {
       const currentUser = this.usuario();
       const authStatus = this.isAuthenticated();
 
-      console.log('🔍 Navbar - Estado de autenticación:', {
+      this.logger.log('Navbar - Estado de autenticación:', {
         usuario: currentUser,
         autenticado: authStatus
       });
@@ -45,10 +50,8 @@ export class NavbarComponent {
   }
 
   logout() {
-    if (confirm('¿Estás seguro de cerrar sesión?')) {
-      this.authService.logout();
-      this.userMenuOpen.set(false);
-      this.router.navigate(['/auth/login']);
-    }
+    this.authService.logout();
+    this.userMenuOpen.set(false);
+    this.router.navigate(['/auth/login']);
   }
 }

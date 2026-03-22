@@ -10,10 +10,11 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { HotelDetalleResponse, HabitacionResponse, ReservaRequest } from '../../../interfaces';
-import { ReservaPublicService } from '../../home/services/reserva-public.service';
-import { AuthService } from '../../auth/services/auth.service';
-
+import { HotelDetalleResponse, HabitacionResponse, ReservaRequest } from '../../../../interfaces';
+import { ReservaPublicService } from '../../../../services/reserva-public.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { LoggerService } from '../../../../core/services/logger.service';
+import { CurrencySolPipe } from '../../../../shared/pipes/currency-sol.pipe';
 
 interface HabitacionSeleccionada {
   index: number;
@@ -23,7 +24,7 @@ interface HabitacionSeleccionada {
 @Component({
   standalone: true,
   selector: 'app-reserva-page',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink, CurrencySolPipe],
   templateUrl: './reserva-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -33,6 +34,7 @@ export class ReservaPageComponent implements OnInit {
   private router = inject(Router);
   private reservaService = inject(ReservaPublicService);
   private authService = inject(AuthService);
+  private logger = inject(LoggerService);
 
   hotelId = signal<number | null>(null);
   hotelData = signal<HotelDetalleResponse | null>(null);
@@ -165,7 +167,7 @@ export class ReservaPageComponent implements OnInit {
         this.cargarHabitacionesIniciales(hotelId);
       },
       error: (err) => {
-        console.error('Error cargando hotel:', err);
+        this.logger.error('Error cargando hotel:', err);
         this.errorMessage.set('No se pudo cargar la información del hotel');
         this.loading.set(false);
       },
@@ -224,7 +226,7 @@ export class ReservaPageComponent implements OnInit {
           this.nextIndex = 2;
         },
         error: (err) => {
-          console.error('Error buscando habitaciones:', err);
+          this.logger.error('Error buscando habitaciones:', err);
           this.habitacionesDisponibles.set([]);
           this.loadingHabitaciones.set(false);
           this.errorMessage.set('Error al buscar habitaciones disponibles');
@@ -276,7 +278,7 @@ export class ReservaPageComponent implements OnInit {
 
     const seleccionadas = this.habitacionesSeleccionadas();
     this.habitacionesSeleccionadas.set(
-      seleccionadas.map((s) => (s.index === index ? { ...s, habitacionId } : s))
+      seleccionadas.map((s) => (s.index === index ? { ...s, habitacionId } : s)),
     );
   }
 
@@ -323,13 +325,6 @@ export class ReservaPageComponent implements OnInit {
       fechaInicio: fechasData.fechaInicio!,
       fechaFin: fechasData.fechaFin!,
       habitacionesIds: habitacionesIds,
-      cliente: {
-        dni: clienteData.dni!,
-        nombre: nombre,
-        apellido: apellido,
-        email: clienteData.correo!,
-        telefono: clienteData.telefono || undefined,
-      },
     };
 
     this.submitting.set(true);
@@ -341,15 +336,11 @@ export class ReservaPageComponent implements OnInit {
         this.router.navigate(['/home/reserva', response.id, 'pago']);
       },
       error: (err) => {
-        console.error('Error creando reserva:', err);
+        this.logger.error('Error creando reserva:', err);
         this.submitting.set(false);
         this.errorMessage.set(err.error?.error || 'Error al crear la reserva. Intente nuevamente.');
       },
     });
-  }
-
-  formatCurrency(amount: number): string {
-    return `S/ ${amount.toFixed(2)}`;
   }
 
   // Getters para validaciones
@@ -373,4 +364,3 @@ export class ReservaPageComponent implements OnInit {
     return !!(control?.invalid && control?.touched);
   }
 }
-

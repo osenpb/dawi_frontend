@@ -12,10 +12,6 @@ export type {
   // Tipo Habitación
   TipoHabitacionResponse,
 
-  // Cliente
-  ClienteResponse,
-  ClienteRequest,
-
   // Habitación
   HabitacionResponse,
   HabitacionesDisponiblesResponse,
@@ -37,7 +33,7 @@ export type {
   MisReservasResponse,
   MisReservasVacio,
   HotelSimple,
-  ClienteSimple,
+  UsuarioSimple,
   DetalleSimple,
   EstadoReserva,
 } from '../../../interfaces';

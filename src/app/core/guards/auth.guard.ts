@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
-import { AuthService } from '../../features/auth/services/auth.service';
+import { AuthService } from '../services/auth.service';
 import { map, tap } from 'rxjs/operators';
 
 /**
@@ -15,15 +15,17 @@ export class AuthGuard implements CanActivate {
   private router = inject(Router);
 
   canActivate() {
+    // Si ya está autenticado según el signal cacheado, permitir sin HTTP
+    if (this.authService.isAuthenticated()) {
+      return true;
+    }
+
+    // Solo llamar al backend si no está autenticado
     return this.authService.checkAuthStatus().pipe(
       map((result) => {
-        // Si es boolean false, no está autenticado
         if (result === false) {
-
           return false;
         }
-
-        // Si es un UserResponse, está autenticado
         return true;
       }),
       tap((isAuthenticated) => {

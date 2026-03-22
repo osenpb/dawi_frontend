@@ -1,10 +1,10 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { HotelService } from '../../../../services/hotel.service';
-import { DepartamentoService } from '../../../../services/departamento.service';
+import { ReservaPublicService } from '../../../../services/reserva-public.service';
 import { DepartamentoResponse, HotelResponse } from '../../interfaces';
+import { LoggerService } from '../../../../core/services/logger.service';
 
 
 @Component({
@@ -12,12 +12,13 @@ import { DepartamentoResponse, HotelResponse } from '../../interfaces';
   selector: 'app-hoteles-page',
   imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './hoteles-page.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HotelesPageComponent implements OnInit {
 
   private route = inject(ActivatedRoute);
-  private hotelService = inject(HotelService);
-  private departamentoService = inject(DepartamentoService);
+  private reservaPublicService = inject(ReservaPublicService);
+  private logger = inject(LoggerService);
 
   hoteles = signal<HotelResponse[]>([]);
   departamento = signal<DepartamentoResponse | null>(null);
@@ -52,25 +53,25 @@ export class HotelesPageComponent implements OnInit {
   }
 
   loadDepartamento(id: number) {
-    this.departamentoService.getById(id).subscribe({
+    this.reservaPublicService.getDepartamentoById(id).subscribe({
       next: (data) => {
         this.departamento.set(data);
       },
       error: (error) => {
-        console.error('Error al cargar departamento:', error);
+        this.logger.error('Error al cargar departamento:', error);
       }
     });
   }
 
   loadHotelesByDepartamento(depId: number) {
     this.loading.set(true);
-    this.hotelService.getByDepartamento(depId).subscribe({
+    this.reservaPublicService.getHotelesPorDepartamento(depId).subscribe({
       next: (data) => {
-        this.hoteles.set(data);
+        this.hoteles.set(data.hoteles);
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('Error al cargar hoteles:', error);
+        this.logger.error('Error al cargar hoteles:', error);
         this.loading.set(false);
       }
     });
@@ -78,13 +79,13 @@ export class HotelesPageComponent implements OnInit {
 
   loadAllHoteles() {
     this.loading.set(true);
-    this.hotelService.getAll().subscribe({
+    this.reservaPublicService.getHotelesList().subscribe({
       next: (data) => {
         this.hoteles.set(data);
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('Error al cargar hoteles:', error);
+        this.logger.error('Error al cargar hoteles:', error);
         this.loading.set(false);
       }
     });
