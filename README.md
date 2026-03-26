@@ -36,5 +36,8 @@ The goal of this project was to build a platform that connects clients with hote
  4. Open http://localhost:4200 in your browser
 
 ## 🎞️ Preview
-  **(comming soon)**
+
+https://github.com/user-attachments/assets/1b0d6227-b9ed-4354-9fe0-cc9b10fda8fe
+
+
  
