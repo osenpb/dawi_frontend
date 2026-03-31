@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { DepartamentoService } from '../../../../../services/departamento.service';
+import { LoggerService } from '../../../../../core/services/logger.service';
+import { NotificationService } from '../../../../../core/services/notification.service';
 
 @Component({
   standalone: true,
@@ -11,10 +13,12 @@ import { DepartamentoService } from '../../../../../services/departamento.servic
   templateUrl: './create-departamento.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CreateDepartamentoComponent {
+export class CreateDepartamentoPageComponent {
   private fb = inject(FormBuilder);
   private departamentoService = inject(DepartamentoService);
   private router = inject(Router);
+  private logger = inject(LoggerService);
+  private notification = inject(NotificationService);
 
   saving = signal<boolean>(false);
 
@@ -39,12 +43,12 @@ export class CreateDepartamentoComponent {
 
     this.departamentoService.create(departamentoData).subscribe({
       next: () => {
-        alert('Departamento creado exitosamente');
+        this.notification.success('Departamento creado exitosamente');
         this.router.navigate(['/admin/departamento/list']);
       },
       error: (err) => {
-        console.error('Error al crear departamento:', err);
-        alert('Error al crear el departamento');
+        this.logger.error('Error al crear departamento:', err);
+        this.notification.error('Error al crear el departamento');
         this.saving.set(false);
       },
     });

@@ -121,12 +121,14 @@ export class PdfGeneratorService {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     yTemp += 6;
-    const clienteNombre = reserva.cliente ? `${reserva.cliente.nombre} ${reserva.cliente.apellido}`.trim() || 'N/A' : 'N/A';
+    const clienteNombre = reserva.usuarioNombre && reserva.usuarioApellido 
+      ? `${reserva.usuarioNombre} ${reserva.usuarioApellido}`.trim() 
+      : 'N/A';
     doc.text(`Titular: ${clienteNombre}`, pageWidth / 2 + 10, yTemp);
     yTemp += 5;
-    doc.text(`Documento: ${reserva.cliente?.documento || 'N/A'}`, pageWidth / 2 + 10, yTemp);
+    doc.text(`Documento: ${reserva.usuarioDni || 'N/A'}`, pageWidth / 2 + 10, yTemp);
     yTemp += 5;
-    doc.text(`Email: ${reserva.cliente?.email || 'N/A'}`, pageWidth / 2 + 10, yTemp);
+    doc.text(`Email: ${reserva.usuarioEmail || 'N/A'}`, pageWidth / 2 + 10, yTemp);
 
     y = yTemp + 15;
 

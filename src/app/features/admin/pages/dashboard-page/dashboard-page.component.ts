@@ -12,19 +12,23 @@ import {
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DashboardService, DashboardStats } from '../../../../services/dashboard.service';
+import { LoggerService } from '../../../../core/services/logger.service';
 import { Chart, registerables } from 'chart.js';
+import { CurrencySolPipe } from '../../../../shared/pipes/currency-sol.pipe';
+import { EstadoBadgePipe } from '../../../../shared/pipes/estado-badge.pipe';
 
 Chart.register(...registerables);
 
 @Component({
   standalone: true,
   selector: 'app-dashboard-page',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, CurrencySolPipe, EstadoBadgePipe],
   templateUrl: './dashboard-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardPageComponent implements OnInit, AfterViewInit, OnDestroy {
   private dashboardService = inject(DashboardService);
+  private logger = inject(LoggerService);
 
   stats = signal<DashboardStats | null>(null);
   loading = signal<boolean>(true);
@@ -72,7 +76,7 @@ export class DashboardPageComponent implements OnInit, AfterViewInit, OnDestroy 
         setTimeout(() => this.createCharts(), 0);
       },
       error: (err) => {
-        console.error('Error cargando estadísticas:', err);
+        this.logger.error('Error cargando estadísticas:', err);
         this.error.set('Error al cargar las estadísticas');
         this.loading.set(false);
       },
@@ -228,7 +232,7 @@ export class DashboardPageComponent implements OnInit, AfterViewInit, OnDestroy 
         // Mostrar TODOS los departamentos ordenados por cantidad (mayor a menor)
         // Incluye departamentos con 0 hoteles
         const sortedEntries = Object.entries(data.hotelesPorDepartamento).sort(
-          (a: [string, number], b: [string, number]) => b[1] - a[1]
+          (a: [string, number], b: [string, number]) => b[1] - a[1],
         );
 
         this.hotelesDepChart = new Chart(ctx, {
@@ -263,17 +267,6 @@ export class DashboardPageComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('es-PE', {
-      style: 'currency',
-      currency: 'PEN',
-    }).format(value);
-  }
-
-  getEstadoClass(estado: string): string {
-    return estado === 'CONFIRMADA' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-  }
-
   getDepartamentosChartHeight(): number {
     const data = this.stats();
     if (!data || !data.hotelesPorDepartamento) {
@@ -284,6 +277,3 @@ export class DashboardPageComponent implements OnInit, AfterViewInit, OnDestroy 
     return Math.max(288, numDepartamentos * 40);
   }
 }
-
-
-

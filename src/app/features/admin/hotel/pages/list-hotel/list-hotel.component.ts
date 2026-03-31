@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { HotelService } from '../../../../../services/hotel.service';
 import { DepartamentoService } from '../../../../../services/departamento.service';
 import { DepartamentoResponse, HotelResponse } from '../../../../../interfaces';
+import { LoggerService } from '../../../../../core/services/logger.service';
+import { NotificationService } from '../../../../../core/services/notification.service';
 
 @Component({
   standalone: true,
@@ -18,6 +20,8 @@ export class ListHotelPageComponent implements OnInit {
   private departamentoService = inject(DepartamentoService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private logger = inject(LoggerService);
+  private notification = inject(NotificationService);
 
   departamentoId = signal<number | null>(null);
   departamento = signal<DepartamentoResponse | null>(null);
@@ -49,7 +53,7 @@ export class ListHotelPageComponent implements OnInit {
   loadDepartamento(id: number): void {
     this.departamentoService.getById(id).subscribe({
       next: (dep) => this.departamento.set(dep),
-      error: (err) => console.error('Error cargando departamento:', err),
+      error: (err) => this.logger.error('Error cargando departamento:', err),
     });
   }
 
@@ -61,7 +65,7 @@ export class ListHotelPageComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Error cargando hoteles:', err);
+        this.logger.error('Error cargando hoteles:', err);
         this.loading.set(false);
       },
     });
@@ -72,12 +76,12 @@ export class ListHotelPageComponent implements OnInit {
     const fin = this.fechaFin();
 
     if (!inicio || !fin) {
-      alert('Seleccione ambas fechas');
+      this.notification.warning('Seleccione ambas fechas');
       return;
     }
 
     // Aquí podrías implementar la búsqueda de habitaciones disponibles
-    console.log('Buscando habitaciones disponibles:', inicio, fin);
+    this.logger.log('Buscando habitaciones disponibles:', inicio, fin);
   }
 
   // Modal eliminar
@@ -112,8 +116,8 @@ export class ListHotelPageComponent implements OnInit {
         setTimeout(() => this.successMessage.set(null), 5000);
       },
       error: (err) => {
-        console.error('Error eliminando hotel:', err);
-        alert('Error al eliminar el hotel');
+        this.logger.error('Error eliminando hotel:', err);
+        this.notification.error('Error al eliminar el hotel');
         this.procesando.set(false);
       },
     });

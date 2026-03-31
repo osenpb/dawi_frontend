@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
-import { LoginRequest, RegisterRequest, AuthResponse } from '../interfaces/auth.interface';
-import { UserResponse } from '../interfaces/userResponse.interface';
-import { environment } from '../../../../environments/environments';
+import { LoginRequest, RegisterRequest, AuthResponse } from '../../interfaces/auth/auth.interface';
+import { UserResponse } from '../../interfaces/auth/userResponse.interface';
+import { LoggerService } from './logger.service';
+import { environment } from '../../../environments/environments';
 
 
 type AuthStatus = 'checking' | 'authenticated' | 'not-authenticated';
@@ -13,6 +14,7 @@ const baseUrl = `${environment.apiUrl}/auth`;
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
+  private logger = inject(LoggerService);
 
   // Signals privados - inicializar desde localStorage
   private _authStatus = signal<AuthStatus>(this.getInitialAuthStatus());
@@ -44,7 +46,7 @@ export class AuthService {
         return user;
       }
     } catch (e) {
-      console.warn('Error parsing user from localStorage:', e);
+      this.logger.warn('Error parsing user from localStorage:', e);
       localStorage.removeItem('user');
     }
     return null;
@@ -66,8 +68,11 @@ export class AuthService {
     return this.http
       .post<AuthResponse>(`${baseUrl}/register`, {
         username: registerRequest.username,
+        nombre: registerRequest.nombre,
+        apellido: registerRequest.apellido,
         email: registerRequest.email,
         telefono: registerRequest.telefono,
+        dni: registerRequest.dni,
         password: registerRequest.password,
       })
       .pipe(
@@ -96,17 +101,16 @@ export class AuthService {
    * Logout del usuario
    */
   logout() {
-    console.log('🚪 Cerrando sesión...');
+    this.logger.log('Cerrando sesión...');
 
     this._user.set(null);
     this._token.set(null);
     this._authStatus.set('not-authenticated');
 
-    // Limpiar localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
 
-    console.log('✅ Sesión cerrada');
+    this.logger.log('Sesión cerrada');
   }
 
   /**
@@ -118,7 +122,7 @@ export class AuthService {
     const storedUser = this.loadUserFromStorage();
 
     if (!token) {
-      console.log('❌ No hay token');
+      this.logger.log('No hay token');
       this._authStatus.set('not-authenticated');
       this._user.set(null);
       return of(false);
@@ -126,7 +130,7 @@ export class AuthService {
 
     // Si ya tenemos usuario en localStorage, usarlo sin llamar al backend
     if (storedUser) {
-      console.log('✅ Usuario ya disponible:', storedUser.username);
+      this.logger.log('Usuario ya disponible:', storedUser.username);
       this._user.set(storedUser);
       this._token.set(token);
       this._authStatus.set('authenticated');
@@ -134,17 +138,17 @@ export class AuthService {
     }
 
     // Solo llamar al backend si no tenemos usuario
-    console.log('🔄 Verificando token con backend...');
+    this.logger.log('Verificando token con backend...');
     this._authStatus.set('checking');
 
     return this.me().pipe(
       tap((user) => {
-        console.log('✅ Token válido, usuario:', user.username);
+        this.logger.log('Token válido, usuario:', user.username);
         this._authStatus.set('authenticated');
         localStorage.setItem('user', JSON.stringify(user));
       }),
       catchError((error) => {
-        console.log('❌ Token inválido:', error.status);
+        this.logger.log('Token inválido:', error.status);
         this.logout();
         return of(false);
       })
@@ -184,25 +188,23 @@ export class AuthService {
    * Maneja el éxito del login/registro
    */
   private handleLoginSuccess(resp: AuthResponse) {
-    console.log('💾 Guardando datos de autenticación...');
+    this.logger.log('Guardando datos de autenticación...');
 
-    // Guardar en localStorage PRIMERO
     localStorage.setItem('token', resp.token);
     localStorage.setItem('user', JSON.stringify(resp.user));
 
-    // Luego actualizar signals
     this._token.set(resp.token);
     this._user.set(resp.user);
     this._authStatus.set('authenticated');
 
-    console.log('✅ Datos guardados para:', resp.user.username);
+    this.logger.log('Datos guardados para:', resp.user.username);
   }
 
   /**
    * Maneja errores de autenticación
    */
   private handleAuthError(error: any) {
-    console.error('❌ Error de autenticación:', error);
+    this.logger.error('Error de autenticación:', error);
 
     // No cerrar sesión en errores de conexión
     if (error.status === 0) {
@@ -223,6 +225,8 @@ export class AuthService {
       errorMessage = 'Credenciales inválidas';
     } else if (error.status === 403) {
       errorMessage = 'No tienes permisos';
+    } else if (error.status === 409) {
+      errorMessage = error.error?.message || 'Datos duplicados';
     }
 
     return throwError(() => ({
@@ -235,9 +239,9 @@ export class AuthService {
    * Obtiene información del usuario actual desde el backend
    */
   me(): Observable<UserResponse> {
-    return this.http.get<UserResponse>(`${baseUrl}/auth/me`).pipe(
+    return this.http.get<UserResponse>(`${baseUrl}/me`).pipe(
       tap((user: UserResponse) => {
-        console.log('📡 Usuario obtenido de /me:', user.username);
+        this.logger.log('Usuario obtenido de /me:', user.username);
         this._user.set(user);
         localStorage.setItem('user', JSON.stringify(user));
       })
@@ -250,7 +254,7 @@ export class AuthService {
   refreshUser(): Observable<UserResponse> {
     return this.me().pipe(
       catchError((error) => {
-        console.error('❌ Error al refrescar usuario:', error);
+        this.logger.error('Error al refrescar usuario:', error);
         return throwError(() => error);
       })
     );

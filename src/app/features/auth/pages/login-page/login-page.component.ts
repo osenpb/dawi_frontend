@@ -1,16 +1,17 @@
-import { AuthResponse, LoginRequest } from '../../interfaces/auth.interface';
-import { AuthService } from '../../services/auth.service';
-import { Component, inject, signal } from '@angular/core';
+import { AuthResponse, LoginRequest } from '../../../../interfaces/auth/auth.interface';
+import { AuthService } from '../../../../core/services/auth.service';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { LoggerService } from '../../../../core/services/logger.service';
 
 @Component({
-  selector: 'app-login-page.component',
+  selector: 'app-login-page',
   imports: [RouterLink, ReactiveFormsModule],
   templateUrl: './login-page.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginPageComponent {
-
   fb = inject(FormBuilder);
   hasError = signal(false);
   isPosting = signal(false);
@@ -19,17 +20,18 @@ export class LoginPageComponent {
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]]
-  })
+    password: ['', [Validators.required, Validators.minLength(8)]],
+  });
 
   authService = inject(AuthService);
+  private logger = inject(LoggerService);
 
   onSubmit() {
     if (this.loginForm.invalid) {
       this.hasError.set(true);
       setTimeout(() => {
-        this.hasError.set(false)
-      }, 2000)
+        this.hasError.set(false);
+      }, 2000);
       return;
     }
 
@@ -37,20 +39,20 @@ export class LoginPageComponent {
 
     const loginRequest: LoginRequest = {
       email: email,
-      password: password
+      password: password,
     };
 
     this.isPosting.set(true);
 
     this.authService.login(loginRequest).subscribe({
       next: (authResp: AuthResponse) => {
-        console.log('AuthResponse:', authResp);
+        this.logger.log('AuthResponse:', authResp);
         this.isPosting.set(false);
 
         const user = authResp.user;
 
         if (!user) {
-          console.error('User está undefined');
+          this.logger.error('User está undefined');
           this.hasError.set(true);
           return;
         }
@@ -63,13 +65,11 @@ export class LoginPageComponent {
         }
       },
       error: (err) => {
-        console.error('Login failed', err);
+        this.logger.error('Login failed', err);
         this.isPosting.set(false);
         this.hasError.set(true);
         setTimeout(() => this.hasError.set(false), 3000);
-      }
+      },
     });
   }
 }
-
-

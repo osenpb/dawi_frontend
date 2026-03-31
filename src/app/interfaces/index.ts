@@ -9,9 +9,6 @@ export * from './departamento/departamento-response.interface';
 // Tipo Habitación
 export * from './tipo-habitacion/tipo-habitacion-response.interface';
 
-// Cliente
-export * from './cliente/cliente.interface';
-
 // Habitación
 export * from './habitacion/habitacion-response.interface';
 export * from './habitacion/habitacion-request.interface';
@@ -25,3 +22,8 @@ export * from './reserva/reserva.interface';
 
 // Dashboard
 export * from './dashboard/dashboard.interface';
+
+// Auth
+export type { LoginRequest, RegisterRequest, AuthResponse } from './auth/auth.interface';
+export type { UserResponse } from './auth/userResponse.interface';
+export type { Role } from './auth/role.interface';

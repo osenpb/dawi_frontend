@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import { DepartamentoResponse, DepartamentoRequest } from '../interfaces';
+import { LoggerService } from '../core/services/logger.service';
 import { environment } from '../../environments/environments';
 
 const baseUrl = `${environment.apiUrl}/admin`;
@@ -12,11 +13,12 @@ const baseUrl = `${environment.apiUrl}/admin`;
 export class DepartamentoService {
   
   private http = inject(HttpClient);
+  private logger = inject(LoggerService);
 
   getAll(): Observable<DepartamentoResponse[]> {
     return this.http.get<DepartamentoResponse[]>(`${baseUrl}/departamentos`).pipe(
       catchError((error: any) => {
-        console.error('Error al obtener departamentos:', error);
+        this.logger.error('Error al obtener departamentos:', error);
         return throwError(() => error);
       })
     );
@@ -25,7 +27,7 @@ export class DepartamentoService {
   getById(id: number): Observable<DepartamentoResponse> {
     return this.http.get<DepartamentoResponse>(`${baseUrl}/departamentos/${id}`).pipe(
       catchError((error: any) => {
-        console.error('Error al obtener departamento:', error);
+        this.logger.error('Error al obtener departamento:', error);
         return throwError(() => error);
       })
     );
@@ -34,7 +36,7 @@ export class DepartamentoService {
   create(departamento: DepartamentoRequest): Observable<DepartamentoResponse> {
     return this.http.post<DepartamentoResponse>(`${baseUrl}/departamentos`, departamento).pipe(
       catchError((error: any) => {
-        console.error('Error al crear departamento:', error);
+        this.logger.error('Error al crear departamento:', error);
         return throwError(() => error);
       })
     );
@@ -43,7 +45,7 @@ export class DepartamentoService {
   update(id: number, departamento: DepartamentoRequest): Observable<DepartamentoResponse> {
     return this.http.put<DepartamentoResponse>(`${baseUrl}/departamentos/${id}`, departamento).pipe(
       catchError((error: any) => {
-        console.error('Error al actualizar departamento:', error);
+        this.logger.error('Error al actualizar departamento:', error);
         return throwError(() => error);
       })
     );
@@ -52,7 +54,7 @@ export class DepartamentoService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${baseUrl}/departamentos/${id}`).pipe(
       catchError((error: any) => {
-        console.error('Error al eliminar departamento:', error);
+        this.logger.error('Error al eliminar departamento:', error);
         return throwError(() => error);
       })
     );

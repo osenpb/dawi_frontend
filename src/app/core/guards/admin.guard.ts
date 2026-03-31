@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
-import { AuthService } from '../../features/auth/services/auth.service';
+import { AuthService } from '../services/auth.service';
 import { map, tap } from 'rxjs/operators';
 
 /**
@@ -15,32 +15,23 @@ export class AdminGuard implements CanActivate {
   private router = inject(Router);
 
   canActivate() {
+    // Si ya está autenticado y es admin según signals cacheados, permitir sin HTTP
+    if (this.authService.isAuthenticated() && this.authService.isAdmin()) {
+      return true;
+    }
+
     return this.authService.checkAuthStatus().pipe(
       map((result) => {
-        // Si no está autenticado, rechazar
         if (result === false) {
-     
           return false;
         }
-
-        // Verificar si es admin
-        const isAdmin = this.authService.isAdmin();
-        console.log('🔍 AdminGuard: Verificando rol de admin:', isAdmin);
-
-        if (!isAdmin) {
-          return false;
-        }
-
-
-        return true;
+        return this.authService.isAdmin();
       }),
       tap((isAuthorized) => {
         if (!isAuthorized) {
-          // Si no está autenticado, redirigir a login
           if (!this.authService.isAuthenticated()) {
             this.router.navigate(['/auth/login']);
           } else {
-            // Si está autenticado pero no es admin, redirigir a home
             this.router.navigate(['/home']);
           }
         }

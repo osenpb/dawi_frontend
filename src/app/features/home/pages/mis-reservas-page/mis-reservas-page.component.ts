@@ -3,21 +3,31 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 
-import { HttpClient } from '@angular/common/http';
-import { ReservaPublicService } from '../../home/services/reserva-public.service';
-import { ReservaListResponse } from '../../../interfaces';
+import { ReservaPublicService } from '../../../../services/reserva-public.service';
+import { ReservaListResponse } from '../../../../interfaces';
+import { LoggerService } from '../../../../core/services/logger.service';
+import { CurrencySolPipe } from '../../../../shared/pipes/currency-sol.pipe';
+import { EstadoBadgePipe } from '../../../../shared/pipes/estado-badge.pipe';
+import { FormatDatePipe } from '../../../../shared/pipes/format-date.pipe';
 
 @Component({
   standalone: true,
   selector: 'app-mis-reservas-page',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    CurrencySolPipe,
+    EstadoBadgePipe,
+    FormatDatePipe,
+  ],
   templateUrl: './mis-reservas-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MisReservasPageComponent implements OnInit {
   private reservaService = inject(ReservaPublicService);
-  private http = inject(HttpClient);
   private router = inject(Router);
+  private logger = inject(LoggerService);
 
   reservas = signal<ReservaListResponse[]>([]);
   reservasFiltradas = signal<ReservaListResponse[]>([]);
@@ -54,7 +64,7 @@ export class MisReservasPageComponent implements OnInit {
 
     this.reservaService.getMisReservas(fechaInicio, fechaFin).subscribe({
       next: (data) => {
-        console.log(data);
+        this.logger.log(data);
         if (Array.isArray(data)) {
           this.reservas.set(data);
           this.aplicarFiltros();
@@ -65,7 +75,7 @@ export class MisReservasPageComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err: any) => {
-        console.error('Error cargando reservas:', err);
+        this.logger.error('Error cargando reservas:', err);
         if (err.status === 401) {
           this.error.set('Debe iniciar sesión para ver sus reservas');
         } else {
@@ -134,7 +144,7 @@ export class MisReservasPageComponent implements OnInit {
 
     this.procesando.set(true);
 
-    this.http.delete(`http://localhost:8080/api/public/reserva/${reserva.id}`).subscribe({
+    this.reservaService.cancelarReserva(reserva.id).subscribe({
       next: () => {
         this.procesando.set(false);
         this.cerrarModalEliminar();
@@ -145,7 +155,7 @@ export class MisReservasPageComponent implements OnInit {
         setTimeout(() => this.successMessage.set(null), 3000);
       },
       error: (err: any) => {
-        console.error('Error cancelando reserva:', err);
+        this.logger.error('Error cancelando reserva:', err);
         this.procesando.set(false);
         this.cerrarModalEliminar();
         if (err.status === 403) {
@@ -234,8 +244,8 @@ export class MisReservasPageComponent implements OnInit {
     this.procesando.set(true);
     this.editError.set(null);
 
-    this.http
-      .put(`http://localhost:8080/api/public/reserva/${reserva.id}`, {
+    this.reservaService
+      .actualizarReserva(reserva.id, {
         fechaInicio: fechaInicio,
         fechaFin: fechaFin,
       })
@@ -248,7 +258,7 @@ export class MisReservasPageComponent implements OnInit {
           setTimeout(() => this.successMessage.set(null), 3000);
         },
         error: (err: any) => {
-          console.error('Error actualizando reserva:', err);
+          this.logger.error('Error actualizando reserva:', err);
           this.procesando.set(false);
           if (err.status === 403) {
             this.editError.set('No tiene permiso para actualizar esta reserva');
@@ -257,43 +267,6 @@ export class MisReservasPageComponent implements OnInit {
           }
         },
       });
-  }
-
-  // === UTILIDADES ===
-  formatDate(dateString: string): string {
-    const date = new Date(dateString + 'T00:00:00');
-    return date.toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-  }
-
-  formatDateLong(dateString: string): string {
-    const date = new Date(dateString + 'T00:00:00');
-    return date.toLocaleDateString('es-PE', {
-      weekday: 'short',
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
-  }
-
-  formatCurrency(amount: number): string {
-    return `S/ ${amount.toFixed(2)}`;
-  }
-
-  getEstadoClass(estado: string): string {
-    switch (estado) {
-      case 'CONFIRMADA':
-        return 'bg-green-100 text-green-800';
-      case 'PENDIENTE':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'CANCELADA':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
   }
 
   calcularNoches(fechaInicio: string, fechaFin: string): number {

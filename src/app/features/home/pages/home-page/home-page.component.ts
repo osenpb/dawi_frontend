@@ -2,9 +2,10 @@ import { ChangeDetectionStrategy, Component, inject, signal, OnInit, OnDestroy }
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
-import { ExperiencesGalery } from "../../components/experiences-galery/experiences-galery";
-import { ReservaPublicService } from '../../services/reserva-public.service';
+import { ExperiencesGalleryComponent } from "../../components/experiences-gallery/experiences-gallery.component";
+import { ReservaPublicService } from '../../../../services/reserva-public.service';
 import { DepartamentoResponse } from '../../interfaces';
+import { LoggerService } from '../../../../core/services/logger.service';
 
 interface Slide {
   url: string;
@@ -17,12 +18,13 @@ interface Slide {
 @Component({
   standalone: true,
   selector: 'app-home-page',
-  imports: [CommonModule, RouterLink, ExperiencesGalery],
+  imports: [CommonModule, RouterLink, ExperiencesGalleryComponent],
   templateUrl: './home-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomePageComponent implements OnInit, OnDestroy {
   private reservaService = inject(ReservaPublicService);
+  private logger = inject(LoggerService);
 
   departamentosDestacados = signal<DepartamentoResponse[]>([]);
   loading = signal<boolean>(true);
@@ -71,7 +73,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Error cargando departamentos:', err);
+        this.logger.error('Error cargando departamentos:', err);
         this.loading.set(false);
       },
     });

@@ -40,3 +40,7 @@ Thumbs.db
 # Varios
 .env
 .bak
+
+# AGENTS
+AGENTS.md
+PLAN_*.md

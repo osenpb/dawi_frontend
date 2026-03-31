@@ -2,8 +2,9 @@ import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@a
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { DepartamentoService } from '../../../../services/departamento.service';
+import { ReservaPublicService } from '../../../../services/reserva-public.service';
 import { DepartamentoResponse } from '../../interfaces';
+import { LoggerService } from '../../../../core/services/logger.service';
 
 @Component({
   standalone: true,
@@ -14,7 +15,8 @@ import { DepartamentoResponse } from '../../interfaces';
 })
 export class DepartamentosPageComponent {
 
-  private departamentoService = inject(DepartamentoService);
+  private reservaPublicService = inject(ReservaPublicService);
+  private logger = inject(LoggerService);
 
   departamentos = signal<DepartamentoResponse[]>([]);
   loading = signal<boolean>(true);
@@ -71,13 +73,13 @@ export class DepartamentosPageComponent {
 
   loadDepartamentos() {
     this.loading.set(true);
-    this.departamentoService.getAll().subscribe({
+    this.reservaPublicService.getDepartamentosList().subscribe({
       next: (data) => {
         this.departamentos.set(data);
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Error cargando departamentos', err);
+        this.logger.error('Error cargando departamentos', err);
         this.loading.set(false);
       },
     });

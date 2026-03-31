@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DepartamentoService } from '../../../../../services/departamento.service';
+import { LoggerService } from '../../../../../core/services/logger.service';
+import { NotificationService } from '../../../../../core/services/notification.service';
 import { DepartamentoResponse } from '../../../../../interfaces';
 
 @Component({
@@ -11,8 +13,10 @@ import { DepartamentoResponse } from '../../../../../interfaces';
   templateUrl: './list-departamento.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ListDepartamentoComponent implements OnInit {
+export class ListDepartamentoPageComponent implements OnInit {
   private departamentoService = inject(DepartamentoService);
+  private logger = inject(LoggerService);
+  private notification = inject(NotificationService);
 
   departamentos = signal<DepartamentoResponse[]>([]);
   loading = signal<boolean>(true);
@@ -35,7 +39,7 @@ export class ListDepartamentoComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Error cargando departamentos', err);
+        this.logger.error('Error cargando departamentos', err);
         this.loading.set(false);
       },
     });
@@ -68,8 +72,8 @@ export class ListDepartamentoComponent implements OnInit {
         setTimeout(() => this.successMessage.set(null), 5000);
       },
       error: (err) => {
-        console.error('Error eliminando departamento', err);
-        alert('No se pudo eliminar el departamento. Puede tener hoteles asociados.');
+        this.logger.error('Error eliminando departamento', err);
+        this.notification.error('No se pudo eliminar el departamento. Puede tener hoteles asociados.');
         this.procesando.set(false);
       },
     });
