@@ -111,6 +111,48 @@ export interface ReservaUpdateResponse {
   nuevoTotal: number;
 }
 
+/**
+ * Datos de identificación del pagador para Checkout API
+ */
+export interface CheckoutApiPayerIdentification {
+  type: string;
+  number: string;
+}
+
+/**
+ * Datos del pagador para Checkout API
+ */
+export interface CheckoutApiPayer {
+  email: string;
+  identification?: CheckoutApiPayerIdentification;
+}
+
+/**
+ * Request para iniciar pago con Mercado Pago Checkout API
+ */
+export interface CheckoutApiRequest {
+  reservaId: number;
+  token?: string;
+  issuerId?: string;
+  paymentMethodId?: string;
+  transactionAmount?: number;
+  installments?: number;
+  description?: string;
+  docType?: string;
+  docNumber?: string;
+  payer?: CheckoutApiPayer;
+}
+
+/**
+ * Response del endpoint de Checkout API
+ */
+export interface CheckoutApiResponse {
+  paymentId: number;
+  status: string;
+  statusDetail: string;
+  idempotencyKey: string;
+}
+
 // ==================== DTOs DE REQUEST ====================
 
 /**

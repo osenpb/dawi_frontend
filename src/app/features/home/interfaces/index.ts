@@ -30,6 +30,8 @@ export type {
   ReservaUpdateResponse,
   ReservaRequest,
   ReservaUpdateRequest,
+  CheckoutApiRequest,
+  CheckoutApiResponse,
   MisReservasResponse,
   MisReservasVacio,
   HotelSimple,

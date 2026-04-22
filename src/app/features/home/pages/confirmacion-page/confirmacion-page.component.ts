@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
@@ -35,7 +35,7 @@ import { LoggerService } from '../../../../core/services/logger.service';
   templateUrl: './confirmacion-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ConfirmacionPageComponent implements OnInit {
+export class ConfirmacionPageComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private reservaService = inject(ReservaPublicService);
   private pdfGenerator = inject(PdfGeneratorService);
@@ -45,14 +45,51 @@ export class ConfirmacionPageComponent implements OnInit {
   reserva = signal<ReservaResponse | null>(null);
   loading = signal<boolean>(true);
   error = signal<boolean>(false);
+  pollingActivo = signal<boolean>(false);
+  mensajePago = signal<string | null>(null);
+
+  private pollIntervalId: ReturnType<typeof setInterval> | null = null;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('reservaId');
+    const mpStatus = (this.route.snapshot.queryParamMap.get('mpStatus') || '').toLowerCase();
+
+    if (mpStatus) {
+      this.mensajePago.set(`Estado reportado por Mercado Pago: ${mpStatus}`);
+    }
 
     if (id) {
-      this.reservaId.set(Number(id));
-      this.loadReserva(Number(id));
+      const reservaId = Number(id);
+      this.reservaId.set(reservaId);
+
+      if (mpStatus === 'approved') {
+        this.confirmarPagoYRefrescar(reservaId);
+        return;
+      }
+
+      this.loadReserva(reservaId);
     }
+  }
+
+  private confirmarPagoYRefrescar(reservaId: number): void {
+    this.loading.set(true);
+    this.mensajePago.set('Estado reportado por Mercado Pago: approved. Confirmando reserva...');
+
+    this.reservaService.confirmarPago(reservaId).subscribe({
+      next: () => {
+        this.mensajePago.set('Pago aprobado y reserva confirmada.');
+        this.loadReserva(reservaId);
+      },
+      error: (err) => {
+        this.logger.warn('No se pudo confirmar pago inmediatamente. Consultando estado real.', err);
+        this.mensajePago.set(null);
+        this.loadReserva(reservaId);
+      },
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.detenerPolling();
   }
 
   loadReserva(id: number): void {
@@ -62,6 +99,12 @@ export class ConfirmacionPageComponent implements OnInit {
       next: (data) => {
         this.reserva.set(data);
         this.loading.set(false);
+
+        if (data.estado === 'PENDIENTE') {
+          this.iniciarPolling(id);
+        } else {
+          this.detenerPolling();
+        }
       },
       error: (err) => {
         this.logger.error('Error cargando reserva:', err);
@@ -69,6 +112,44 @@ export class ConfirmacionPageComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  refrescarEstado(): void {
+    const id = this.reservaId();
+    if (!id) return;
+
+    this.loadReserva(id);
+  }
+
+  private iniciarPolling(id: number): void {
+    if (this.pollIntervalId) {
+      return;
+    }
+
+    this.pollingActivo.set(true);
+    this.pollIntervalId = setInterval(() => {
+      this.reservaService.getReservaDetalle(id).subscribe({
+        next: (data) => {
+          this.reserva.set(data);
+          if (data.estado !== 'PENDIENTE') {
+            this.detenerPolling();
+          }
+        },
+        error: (err) => {
+          this.logger.error('Error consultando estado de pago:', err);
+        },
+      });
+    }, 5000);
+  }
+
+  private detenerPolling(): void {
+    this.pollingActivo.set(false);
+    if (!this.pollIntervalId) {
+      return;
+    }
+
+    clearInterval(this.pollIntervalId);
+    this.pollIntervalId = null;
   }
 
   // ==================== GETTERS PARA ACCESO A DATOS ====================

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import {
@@ -10,12 +10,12 @@ import {
   ReservaRequest,
   ReservaCreatedResponse,
   ReservaResponse,
-  ReservaListResponse,
   MisReservasResponse,
+  CheckoutApiRequest,
+  CheckoutApiResponse,
 } from '../interfaces';
 import { LoggerService } from '../core/services/logger.service';
 import { environment } from '../../environments/environments';
-
 
 const baseUrl = `${environment.apiUrl}/public`;
 
@@ -163,6 +163,24 @@ export class ReservaPublicService {
         return throwError(() => error);
       })
     );
+  }
+
+  pagarCheckoutApi(
+    request: CheckoutApiRequest,
+    idempotencyKey: string,
+  ): Observable<CheckoutApiResponse> {
+    const headers = new HttpHeaders({
+      'X-Idempotency-Key': idempotencyKey,
+    });
+
+    return this.http
+      .post<CheckoutApiResponse>(`${baseUrl}/payments/checkout-api`, request, { headers })
+      .pipe(
+        catchError((error: any) => {
+          this.logger.error('Error al procesar pago con Checkout API:', error);
+          return throwError(() => error);
+        })
+      );
   }
 
   confirmarPago(reservaId: number): Observable<any> {

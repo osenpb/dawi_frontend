@@ -74,143 +74,203 @@
         </div>
       }
 
+      @if (statusMessage()) {
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-center gap-3">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 text-blue-500 shrink-0"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <p class="text-blue-700">{{ statusMessage() }}</p>
+        </div>
+      }
+
+      @if (!sdkReady()) {
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 flex items-center justify-between gap-4">
+          <p class="text-amber-800 text-sm">Cargando Mercado Pago...</p>
+          <button
+            type="button"
+            (click)="reintentarCargaSdk()"
+            class="px-4 py-2 bg-amber-500 text-white text-sm rounded-lg hover:bg-amber-600 transition"
+          >
+            Reintentar
+          </button>
+        </div>
+      }
+
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Columna izquierda: Formulario de pago -->
+        <!-- Columna izquierda: Mercado Pago CardForm -->
         <div>
-          <!-- Tipo de pago -->
-          <div class="bg-white border border-gray-200 rounded-lg mb-6">
-            <div class="px-4 py-3 border-b border-gray-200">
-              <h2 class="text-lg font-medium text-gray-800">Método de Pago</h2>
-            </div>
-            <div class="p-4">
-              <div class="flex gap-4">
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    [formControl]="pagoForm.controls.tipoPago"
-                    value="tarjeta"
-                    class="w-4 h-4 text-indigo-600"
-                  />
-                  <span class="text-gray-700">Tarjeta de Crédito/Débito</span>
-                </label>
-              </div>
 
-              <!-- Iconos de tarjetas -->
-              <div class="flex gap-3 mt-4">
-                <div
-                  class="w-12 h-8 bg-indigo-600 rounded flex items-center justify-center text-white text-xs font-bold"
-                >
-                  VISA
-                </div>
-                <div
-                  class="w-12 h-8 bg-red-500 rounded flex items-center justify-center text-white text-xs font-bold"
-                >
-                  MC
-                </div>
-                <div
-                  class="w-12 h-8 bg-indigo-800 rounded flex items-center justify-center text-white text-xs font-bold"
-                >
-                  AMEX
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Datos de la tarjeta -->
-          <div class="bg-white border border-gray-200 rounded-lg">
+          <form id="form-checkout" class="bg-white border border-gray-200 rounded-lg">
             <div class="px-4 py-3 border-b border-gray-200">
               <h2 class="text-lg font-medium text-gray-800">Datos de la Tarjeta</h2>
             </div>
             <div class="p-4 space-y-4">
-              <!-- Número de tarjeta -->
               <div>
-                <label class="block text-sm text-gray-600 mb-1">Número de Tarjeta</label>
-                <div class="relative">
-                  <input
-                    type="text"
-                    [formControl]="pagoForm.controls.numeroTarjeta"
-                    (input)="formatCardNumber($event)"
-                    maxlength="16"
-                    placeholder="1234 5678 9012 3456"
-                    class="w-full px-3 py-3 pl-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    [class.border-red-500]="numeroTarjetaInvalid"
-                    [class.border-gray-300]="!numeroTarjetaInvalid"
-                  />
-                  <svg
-                    class="absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                    />
-                  </svg>
-                </div>
-                @if (numeroTarjetaInvalid) {
-                  <p class="mt-1 text-sm text-red-500">
-                    Ingrese un número de tarjeta válido (16 dígitos)
-                  </p>
-                }
-              </div>
-
-              <!-- Nombre del titular -->
-              <div>
-                <label class="block text-sm text-gray-600 mb-1">Nombre del Titular</label>
+                <label class="block text-sm text-gray-600 mb-1" for="form-checkout__cardholderName">
+                  Nombre del titular
+                </label>
                 <input
+                  id="form-checkout__cardholderName"
                   type="text"
-                  [formControl]="pagoForm.controls.nombreTitular"
-                  placeholder="Como aparece en la tarjeta"
-                  class="w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 uppercase"
-                  [class.border-red-500]="nombreTitularInvalid"
-                  [class.border-gray-300]="!nombreTitularInvalid"
+                  class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
-                @if (nombreTitularInvalid) {
-                  <p class="mt-1 text-sm text-red-500">Ingrese el nombre del titular</p>
-                }
               </div>
 
-              <!-- Fecha y CVV -->
-              <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-600 mb-1" for="form-checkout__cardholderEmail">
+                  Email del pagador
+                </label>
+                <input
+                  id="form-checkout__cardholderEmail"
+                  type="text"
+                  class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm text-gray-600 mb-1" for="form-checkout__cardNumber">
+                  Número de tarjeta
+                </label>
+                <input
+                  id="form-checkout__cardNumber"
+                  type="text"
+                  class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div class="grid grid-cols-3 gap-4">
                 <div>
-                  <label class="block text-sm text-gray-600 mb-1">Fecha de Expiración</label>
+                  <label class="block text-sm text-gray-600 mb-1" for="form-checkout__cardExpirationMonth">
+                    Mes
+                  </label>
                   <input
+                    id="form-checkout__cardExpirationMonth"
                     type="text"
-                    [formControl]="pagoForm.controls.fechaExpiracion"
-                    (input)="formatExpiration($event)"
-                    maxlength="5"
-                    placeholder="MM/AA"
-                    class="w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    [class.border-red-500]="fechaExpiracionInvalid"
-                    [class.border-gray-300]="!fechaExpiracionInvalid"
+                    class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
-                  @if (fechaExpiracionInvalid) {
-                    <p class="mt-1 text-sm text-red-500">Formato: MM/AA</p>
-                  }
                 </div>
                 <div>
-                  <label class="block text-sm text-gray-600 mb-1">CVV</label>
+                  <label class="block text-sm text-gray-600 mb-1" for="form-checkout__cardExpirationYear">
+                    Año
+                  </label>
                   <input
-                    type="password"
-                    [formControl]="pagoForm.controls.cvv"
-                    maxlength="4"
-                    placeholder="***"
-                    class="w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    [class.border-red-500]="cvvInvalid"
-                    [class.border-gray-300]="!cvvInvalid"
+                    id="form-checkout__cardExpirationYear"
+                    type="text"
+                    class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
-                  @if (cvvInvalid) {
-                    <p class="mt-1 text-sm text-red-500">CVV inválido</p>
-                  }
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1" for="form-checkout__securityCode">
+                    CVV
+                  </label>
+                  <input
+                    id="form-checkout__securityCode"
+                    type="text"
+                    class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
                 </div>
               </div>
-            </div>
-          </div>
 
-          <!-- Seguridad -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1" for="form-checkout__issuer">
+                    Banco emisor
+                  </label>
+                  <select
+                    id="form-checkout__issuer"
+                    class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                  ></select>
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1" for="form-checkout__installments">
+                    Cuotas
+                  </label>
+                  <select
+                    id="form-checkout__installments"
+                    class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                  ></select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1" for="form-checkout__identificationType">
+                    Tipo de documento
+                  </label>
+                  <select
+                    id="form-checkout__identificationType"
+                    class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                  ></select>
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1" for="form-checkout__identificationNumber">
+                    Número de documento
+                  </label>
+                  <input
+                    id="form-checkout__identificationNumber"
+                    type="text"
+                    class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                [disabled]="procesando() || !cardFormReady() || !puedePagar()"
+                class="w-full py-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                @if (procesando()) {
+                  <span class="flex items-center justify-center gap-2">
+                    <svg
+                      class="animate-spin h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Procesando pago...
+                  </span>
+                } @else {
+                  <span class="flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                    Pagar {{ total() | currencySol }}
+                  </span>
+                }
+              </button>
+            </div>
+          </form>
+
           <div class="mt-4 flex items-center gap-2 text-sm text-gray-500">
             <svg
               class="w-5 h-5 text-green-500"
@@ -225,7 +285,7 @@
                 d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
               />
             </svg>
-            <span>Pago seguro con encriptación SSL</span>
+            <span>Pago seguro</span>
           </div>
         </div>
 
@@ -307,51 +367,11 @@
                 <span class="text-2xl font-bold text-indigo-600">{{ total() | currencySol }}</span>
               </div>
 
-              <!-- Botón Pagar -->
-              <button
-                type="button"
-                (click)="procesarPago()"
-                [disabled]="procesando()"
-                class="w-full py-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed mt-4"
-              >
-                @if (procesando()) {
-                  <span class="flex items-center justify-center gap-2">
-                    <svg
-                      class="animate-spin h-5 w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        class="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        stroke-width="4"
-                      ></circle>
-                      <path
-                        class="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Procesando pago...
-                  </span>
-                } @else {
-                  <span class="flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                      />
-                    </svg>
-                    Pagar {{ total() | currencySol }}
-                  </span>
-                }
-              </button>
+              @if (!puedePagar()) {
+                <p class="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                  Esta reserva ya no está en estado pendiente. Puedes revisar su estado en la pantalla de confirmación.
+                </p>
+              }
             </div>
           </div>
         </div>
