@@ -177,41 +177,59 @@ export class PagoPageComponent implements OnInit, OnDestroy {
   }
 
   private async ensureMercadoPagoSdk(): Promise<void> {
+    this.logger.log('[PAGO] ensureMercadoPagoSdk: Iniciando carga del SDK...');
+
     if (window.MercadoPago) {
+      this.logger.log('[PAGO] ensureMercadoPagoSdk: SDK ya está cargado');
       this.sdkReady.set(true);
       return;
     }
+
+    this.logger.log('[PAGO] ensureMercadoPagoSdk: Cargando script SDK...');
 
     await new Promise<void>((resolve, reject) => {
       const script = document.createElement('script');
       script.src = 'https://sdk.mercadopago.com/js/v2';
       script.async = true;
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error('No se pudo cargar sdk.mercadopago.com'));
+      script.onload = () => {
+        this.logger.log('[PAGO] ensureMercadoPagoSdk: Script cargado exitosamente');
+        resolve();
+      };
+      script.onerror = (err) => {
+        this.logger.error('[PAGO] ensureMercadoPagoSdk: Error al cargar script', err);
+        reject(new Error('No se pudo cargar sdk.mercadopago.com'));
+      };
       document.body.appendChild(script);
     });
 
     this.sdkReady.set(true);
   }
 
-  private async inicializarCardForm(): Promise<void> {
+private async inicializarCardForm(): Promise<void> {
+    this.logger.log('[PAGO] inicializarCardForm: Iniciando...');
     const reserva = this.reserva();
     const reservaId = this.reservaId();
     const mpPublicKey = environment.mpPublicKey?.trim();
 
+    this.logger.log('[PAGO] inicializarCardForm: reservaId=', reservaId, 'mpPublicKey configured=', !!mpPublicKey);
+
     if (!reserva || !reservaId || !window.MercadoPago) {
+      this.logger.error('[PAGO] inicializarCardForm: Faltan datos - reserva=', !!reserva, 'reservaId=', reservaId, 'MP SDK=', !!window.MercadoPago);
       this.errorMessage.set('No se pudo inicializar el formulario de pago.');
       return;
     }
 
     if (!mpPublicKey || mpPublicKey.includes('REEMPLAZAR')) {
+      this.logger.error('[PAGO] inicializarCardForm: Key no configurada correctamente');
       this.errorMessage.set('La llave publica de Mercado Pago no esta configurada correctamente.');
       return;
     }
 
+    this.logger.log('[PAGO] inicializarCardForm: Esperando contenedores del DOM...');
     const contenedoresListos = await this.esperarContenedoresCardForm();
 
     if (!contenedoresListos) {
+      this.logger.error('[PAGO] inicializarCardForm: Contenedores no encontrados');
       this.reintentarMontajeCardForm('No se encontraron los contenedores de tarjeta en la pagina.');
       return;
     }
@@ -219,7 +237,10 @@ export class PagoPageComponent implements OnInit, OnDestroy {
     const cardNumberContainer = document.getElementById('form-checkout__cardNumber');
     const securityCodeContainer = document.getElementById('form-checkout__securityCode');
 
+    this.logger.log('[PAGO] inicializarCardForm: Contenedores hallados - cardNumber=', !!cardNumberContainer, 'securityCode=', !!securityCodeContainer);
+
     if (!cardNumberContainer || !securityCodeContainer) {
+      this.logger.error('[PAGO] inicializarCardForm: Elementos del DOM no encontrados');
       this.reintentarMontajeCardForm('No se encontraron los contenedores de tarjeta en la pagina.');
       return;
     }
@@ -231,10 +252,12 @@ export class PagoPageComponent implements OnInit, OnDestroy {
     this.errorMessage.set(null);
     this.statusMessage.set(null);
 
+    this.logger.log('[PAGO] inicializarCardForm: Creando instancia MercadoPago con key=', mpPublicKey.substring(0, 8) + '...');
     const mp = new window.MercadoPago(mpPublicKey, {
       locale: 'es-PE',
     });
 
+    this.logger.log('[PAGO] inicializarCardForm: Montando cardForm con amount=', reserva.total);
     this.cardForm = mp.cardForm({
       amount: String(reserva.total),
       autoMount: true,
@@ -281,11 +304,12 @@ export class PagoPageComponent implements OnInit, OnDestroy {
           placeholder: 'Banco emisor',
         },
       },
-      callbacks: {
+callbacks: {
         onFormMounted: (error?: unknown) => {
+          this.logger.log('[PAGO] onFormMounted: Callback ejecutado, error=', error);
           this.ngZone.run(() => {
             if (error) {
-              this.logger.error('Error montando cardForm de Mercado Pago:', error);
+              this.logger.error('[PAGO] onFormMounted: Error montando cardForm:', error);
               this.reintentarMontajeCardForm(
                 `Mercado Pago no pudo montar el formulario: ${this.toErrorText(error)}`,
               );
@@ -294,11 +318,21 @@ export class PagoPageComponent implements OnInit, OnDestroy {
 
             this.clearMountTimeout();
             this.cardFormInitRetries = 0;
+            this.logger.log('[PAGO] onFormMounted: Formulario montado exitosamente');
             this.cardFormReady.set(true);
           });
         },
         onSubmit: (event: Event) => {
+          this.logger.log('[PAGO] onSubmit: Evento escuchado, preventDefault...');
           event.preventDefault();
+          void this.ngZone.run(async () => {
+            await this.procesarPagoConCardForm();
+          });
+        },
+      },
+        onSubmit: (event: Event) => {
+          event.preventDefault();
+          console.log('🔥 onSubmit disparado');
           void this.ngZone.run(async () => {
             await this.procesarPagoConCardForm();
           });
@@ -307,8 +341,10 @@ export class PagoPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  private async procesarPagoConCardForm(): Promise<void> {
+private async procesarPagoConCardForm(): Promise<void> {
+    this.logger.log('[PAGO] procesarPagoConCardForm: Iniciando proceso de pago...');
     if (!this.cardForm) {
+      this.logger.error('[PAGO] procesarPagoConCardForm: cardForm no está listo');
       this.errorMessage.set('El formulario de pago no está listo todavía.');
       return;
     }
@@ -320,27 +356,37 @@ export class PagoPageComponent implements OnInit, OnDestroy {
     const reservaId = this.reservaId();
     const reserva = this.reserva();
 
+    this.logger.log('[PAGO] procesarPagoConCardForm: reservaId=', reservaId, 'reserva=', reserva);
+
     if (!reservaId) {
+      this.logger.error('[PAGO] procesarPagoConCardForm: ID de reserva no válido');
       this.errorMessage.set('ID de reserva no válido');
       this.procesando.set(false);
       return;
     }
 
     if (!reserva) {
+      this.logger.error('[PAGO] procesarPagoConCardForm: No se encontró la reserva');
       this.errorMessage.set('No se encontró la reserva a pagar.');
       this.procesando.set(false);
       return;
     }
 
     try {
+      this.logger.log('[PAGO] procesarPagoConCardForm: Obteniendo datos del cardForm...');
       const cardData = this.cardForm.getCardFormData();
+      this.logger.log('[PAGO] procesarPagoConCardForm: cardData obtained - token=', !!cardData.token, 'paymentMethodId=', cardData.paymentMethodId, 'installments=', cardData.installments);
+
       const idempotencyKey = this.lastIdempotencyKey ?? this.generarIdempotencyKey();
       this.lastIdempotencyKey = idempotencyKey;
 
       const docType = (cardData.identificationType || 'DNI').trim();
       const docNumber = (cardData.identificationNumber || reserva.usuarioDni || '').trim();
 
+      this.logger.log('[PAGO] procesarPagoConCardForm: docType=', docType, 'docNumber=', docNumber);
+
       if (!docNumber) {
+        this.logger.error('[PAGO] procesarPagoConCardForm: Falta número de documento');
         this.procesando.set(false);
         this.errorMessage.set('Ingrese un numero de documento para continuar con el pago.');
         return;
@@ -348,7 +394,10 @@ export class PagoPageComponent implements OnInit, OnDestroy {
 
       const cardToken = (cardData.token || '').trim();
 
+      this.logger.log('[PAGO] procesarPagoConCardForm: cardToken=', !!cardToken);
+
       if (!cardToken) {
+        this.logger.error('[PAGO] procesarPagoConCardForm: No se pudo generar el token de la tarjeta');
         this.procesando.set(false);
         this.lastIdempotencyKey = null;
         this.errorMessage.set(
@@ -377,16 +426,22 @@ export class PagoPageComponent implements OnInit, OnDestroy {
         },
       };
 
+this.logger.log('[PAGO] procesarPagoConCardForm: Enviando request al backend, request=', request);
       this.ejecutarCheckoutApi(request, idempotencyKey, reservaId).subscribe({
         next: (response) => {
+          this.logger.log('[PAGO] procesarPagoConCardForm: Respuesta del backend recibida:', response);
           this.procesando.set(false);
 
           const status = this.normalizarCodigoEstado(response.status);
           const statusDetail = this.normalizarCodigoEstado(response.statusDetail);
 
+          this.logger.log('[PAGO] procesarPagoConCardForm: status=', status, 'statusDetail=', statusDetail);
+
           if (this.esEstadoAprobado(status, statusDetail)) {
+            this.logger.log('[PAGO] procesarPagoConCardForm: Pago aprobado, llamando confirmarPago...');
             this.reservaService.confirmarPago(reservaId).subscribe({
               next: () => {
+                this.logger.log('[PAGO] procesarPagoConCardForm: Pago confirmado exitosamente');
                 this.router.navigate(['/home/reserva', reservaId, 'confirmacion'], {
                   queryParams: {
                     paymentId: response.paymentId,
@@ -394,8 +449,8 @@ export class PagoPageComponent implements OnInit, OnDestroy {
                   },
                 });
               },
-              error: () => {
-                // Si no confirma en este punto, confirmacion-page volvera a intentarlo.
+              error: (err) => {
+                this.logger.error('[PAGO] procesarPagoConCardForm: Error al confirmar pago:', err);
                 this.router.navigate(['/home/reserva', reservaId, 'confirmacion'], {
                   queryParams: {
                     paymentId: response.paymentId,
@@ -408,9 +463,28 @@ export class PagoPageComponent implements OnInit, OnDestroy {
           }
 
           if (this.esEstadoPendiente(status, statusDetail)) {
+            this.logger.warn('[PAGO] procesarPagoConCardForm: Pago pendiente');
             this.statusMessage.set(
               'El pago fue recibido y esta en validacion. Te llevamos a la confirmacion para seguir el estado.',
             );
+            this.router.navigate(['/home/reserva', reservaId, 'confirmacion'], {
+              queryParams: {
+                paymentId: response.paymentId,
+                mpStatus: response.status,
+              },
+            });
+            return;
+          }
+
+          this.lastIdempotencyKey = null;
+          this.errorMessage.set(this.construirMensajePagoNoConfirmado(status, statusDetail));
+        },
+        error: (err) => {
+          this.logger.error('[PAGO] procesarPagoConCardForm: Error del backend:', err);
+          const errorStatus = this.normalizarCodigoEstado(err?.error?.status);
+          const errorStatusDetail = this.normalizarCodigoEstado(
+            err?.error?.statusDetail || err?.error?.cause?.[0]?.description,
+          );
             this.router.navigate(['/home/reserva', reservaId, 'confirmacion'], {
               queryParams: {
                 paymentId: response.paymentId,
@@ -638,7 +712,7 @@ export class PagoPageComponent implements OnInit, OnDestroy {
     this.cardFormMountTimeoutId = null;
   }
 
-  private toErrorText(error: unknown): string {
+  private toErrorText(error: unknown) : string {
     if (error instanceof Error) {
       return error.message;
     }

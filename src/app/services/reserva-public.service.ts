@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, Observable, throwError, tap } from 'rxjs';
 import {
   DepartamentoResponse,
   HotelesConDepartamentoResponse,
@@ -169,6 +169,7 @@ export class ReservaPublicService {
     request: CheckoutApiRequest,
     idempotencyKey: string,
   ): Observable<CheckoutApiResponse> {
+    this.logger.log('[SERVICE] pagarCheckoutApi: Enviando request, reservaId=', request.reservaId, 'idempotencyKey=', idempotencyKey);
     const headers = new HttpHeaders({
       'X-Idempotency-Key': idempotencyKey,
     });
@@ -176,17 +177,34 @@ export class ReservaPublicService {
     return this.http
       .post<CheckoutApiResponse>(`${baseUrl}/payments/checkout-api`, request, { headers })
       .pipe(
+        tap({
+          next: (response) => {
+            this.logger.log('[SERVICE] pagarCheckoutApi: Respuesta exitosa:', response);
+          },
+          error: (error) => {
+            this.logger.error('[SERVICE] pagarCheckoutApi: Error:', error);
+          }
+        }),
         catchError((error: any) => {
-          this.logger.error('Error al procesar pago con Checkout API:', error);
+          this.logger.error('[SERVICE] pagarCheckoutApi: Error catcheado:', error);
           return throwError(() => error);
         })
       );
   }
 
   confirmarPago(reservaId: number): Observable<any> {
+    this.logger.log('[SERVICE] confirmarPago: reservaId=', reservaId);
     return this.http.patch(`${baseUrl}/reservas/${reservaId}/pagar`, {}).pipe(
+      tap({
+        next: (response) => {
+          this.logger.log('[SERVICE] confirmarPago: Respuesta exitosa:', response);
+        },
+        error: (error) => {
+          this.logger.error('[SERVICE] confirmarPago: Error:', error);
+        }
+      }),
       catchError((error: any) => {
-        this.logger.error('Error al confirmar pago:', error);
+        this.logger.error('[SERVICE] confirmarPago: Error catcheado:', error);
         return throwError(() => error);
       })
     );
